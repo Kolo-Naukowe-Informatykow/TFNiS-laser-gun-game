@@ -43,3 +43,43 @@ Gra tworzona w **Godot 4.6.1** (C#) w ramach TFNiS.
 5. **Uruchom grę:**
 
    - Kliknij przycisk ▶ **Play** (lub `F5`) w edytorze Godot
+
+## Struktura projektu
+
+```
+├── Assets/                     # Zasoby graficzne, audio, modele 3D, fonty itp.
+│   ├── Textures/
+│   ├── Models/
+│   ├── Audio/
+│   └── Fonts/
+├── Source/                     # Cały kod źródłowy i sceny
+│   ├── Components/             # Reużywalne komponenty (np. Healthbar, HitBox)
+│   ├── Enemies/                # Wspólne klasy wrogów
+│   ├── Managers/               # Singletony / managery (np. GameManager, AudioManager)
+│   ├── Screens/                # Poszczególne gry / ekrany
+│   │   └── SpaceShooter/       # 
+│   ├── Shaders/                # Shadery (.gdshader)
+│   └── UI/                     # Elementy interfejsu (menu, HUD)
+├── project.godot
+├── LaserGunGame.sln
+└── LaserGunGame.csproj
+```
+
+### Zasady nazewnictwa
+
+- **PascalCase** — dotyczy: nazw folderów, plików `.cs`, plików `.tscn` i klas C#.
+
+  | Element | Przykład |
+  |---------|----------|
+  | Folder | `SpaceShooter/`, `Components/`, `UI/` |
+  | Scena | `SpaceShooter.tscn`, `MainMenu.tscn` |
+  | Skrypt C# | `SpaceShooter.cs`, `MainMenu.cs` |
+  | Klasa C# | `public partial class SpaceShooter` |
+
+- **Skrypt przy scenie** — jeżeli kod należy do jednej sceny, plik `.cs` leży **w tym samym folderze** co scena `.tscn`, do której jest przypisany.
+
+  ```
+  Source/Screens/SpaceShooter/
+  ├── SpaceShooter.tscn      ← scena
+  └── SpaceShooter.cs        ← skrypt przypisany do sceny
+  ```
