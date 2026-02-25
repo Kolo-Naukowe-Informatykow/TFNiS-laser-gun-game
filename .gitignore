@@ -1,0 +1,37 @@
+# ===== Godot =====
+.godot/
+/android/
+
+# Godot exported builds
+/build/
+/export/
+
+# ===== .NET / C# =====
+*.csproj.user
+*.sln.DotSettings.user
+bin/
+obj/
+
+# ===== IDE / editory =====
+.vs/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln.docstats
+*.user
+
+# ===== OS =====
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Linux
+*~
