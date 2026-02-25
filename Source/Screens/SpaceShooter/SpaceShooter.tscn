@@ -1,0 +1,30 @@
+[gd_scene format=3 uid="uid://cqjjgsnqeudtt"]
+
+[ext_resource type="Script" uid="uid://btf7emechpfwl" path="res://Source/Screens/SpaceShooter/SpaceShooter.cs" id="1_27jvt"]
+[ext_resource type="Shader" uid="uid://youe7ku7aqrc" path="res://Source/Shaders/Space.gdshader" id="1_pok0e"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_27jvt"]
+shader = ExtResource("1_pok0e")
+shader_parameter/background_color = Color(0.02, 0.04, 0.12, 1)
+shader_parameter/aspect_ratio = 1.0
+shader_parameter/density = 1.3
+shader_parameter/layer_parascale = 4
+shader_parameter/star_speed = Vector2(0, 0)
+shader_parameter/star_wave = Vector2(0, 0)
+shader_parameter/star_size = 3.0
+shader_parameter/star_rotate_speed = 0.5
+shader_parameter/twinkle_effect = 0.6
+shader_parameter/twinkle_speed = 0.3
+shader_parameter/pixelate_enabled = false
+shader_parameter/pixelate_count = 1000.0
+
+[node name="SpaceShooter" type="Node" unique_id=1948598634]
+script = ExtResource("1_27jvt")
+
+[node name="SpaceBackground" type="ColorRect" parent="." unique_id=677665988]
+material = SubResource("ShaderMaterial_27jvt")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
