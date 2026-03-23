@@ -1,0 +1,7 @@
+[gd_scene format=3 uid="uid://bmyfuicwqu1rv"]
+
+[ext_resource type="PackedScene" uid="uid://cf0q6ah03gihc" path="res://Source/Games/SpaceShooter/Enemies/Enemy.tscn" id="1_q84gk"]
+[ext_resource type="Script" uid="uid://dkhhx7nvag5lo" path="res://Source/Games/SpaceShooter/Enemies/BasicSpaceship/BasicSpaceship.cs" id="2_ig00e"]
+
+[node name="BasicSpaceship" unique_id=166932931 instance=ExtResource("1_q84gk")]
+script = ExtResource("2_ig00e")

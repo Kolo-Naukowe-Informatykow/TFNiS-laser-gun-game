@@ -46,6 +46,8 @@ Gra tworzona w **Godot 4.6.1** (C#) w ramach TFNiS.
 
 ## Struktura projektu
 
+Projekt jest tworzony z architekturą arkady — zawiera wiele niezależnych gier ze wspólnym systemem UI, sterowania i managerów.
+
 ```
 ├── Assets/                     # Zasoby graficzne, audio, modele 3D, fonty itp.
 │   ├── Textures/
@@ -53,13 +55,18 @@ Gra tworzona w **Godot 4.6.1** (C#) w ramach TFNiS.
 │   ├── Audio/
 │   └── Fonts/
 ├── Source/                     # Cały kod źródłowy i sceny
-│   ├── Components/             # Reużywalne komponenty (np. Healthbar, HitBox)
-│   ├── Enemies/                # Wspólne klasy wrogów
-│   ├── Managers/               # Singletony / managery (np. GameManager, AudioManager)
-│   ├── Screens/                # Poszczególne gry / ekrany
-│   │   └── SpaceShooter/       # 
-│   ├── Shaders/                # Shadery (.gdshader)
-│   └── UI/                     # Elementy interfejsu (menu, HUD)
+│   ├── Common/                 # Wspólne dla wszystkich gier
+│   │   ├── UI/                # Menu główne, HUD framework, wspólne elementy UI
+│   │   ├── Managers/          # Globalne singletony (GameManager, AudioManager, etc.)
+│   │   ├── Components/        # Generyczne komponenty (HealthBar, Hitbox)
+│   ├── Games/                 # Poszczególne gry
+│   │   ├── SpaceShooter/
+│   │   │   ├── Scenes/       # Sceny specyficzne dla gry
+│   │   │   ├── Enemies/      # Wrogowie specyficzni dla tej gry
+│   │   └── [NextGame]/       # Kolejne gry
+│   │       ├── Scenes/
+│   │       └── ...
+│   └── Shaders/               # Globalne shadery
 ├── project.godot
 ├── LaserGunGame.sln
 └── LaserGunGame.csproj
@@ -71,7 +78,7 @@ Gra tworzona w **Godot 4.6.1** (C#) w ramach TFNiS.
 
   | Element | Przykład |
   |---------|----------|
-  | Folder | `SpaceShooter/`, `Components/`, `UI/` |
+  | Folder | `SpaceShooter/`, `Common/`, `UI/` |
   | Scena | `SpaceShooter.tscn`, `MainMenu.tscn` |
   | Skrypt C# | `SpaceShooter.cs`, `MainMenu.cs` |
   | Klasa C# | `public partial class SpaceShooter` |
@@ -79,7 +86,16 @@ Gra tworzona w **Godot 4.6.1** (C#) w ramach TFNiS.
 - **Skrypt przy scenie** — jeżeli kod należy do jednej sceny, plik `.cs` leży **w tym samym folderze** co scena `.tscn`, do której jest przypisany.
 
   ```
-  Source/Screens/SpaceShooter/
-  ├── SpaceShooter.tscn      ← scena
-  └── SpaceShooter.cs        ← skrypt przypisany do sceny
+  Source/Games/SpaceShooter/Scenes/
+  ├── SpaceShooter.tscn       ← scena główna gry
+  └── SpaceShooter.cs         ← skrypt przypisany do sceny
   ```
+
+### Architektura gier
+
+Każda gra to **niezależny moduł**:
+
+- **Gry** — umieszczane w `Source/Games/[GameName]/`
+- **Wspólne elementy** — tylko rzeczywiście uniwersalne trafiają do `Source/Common/`
+- **Wrogowie, shadery, scenki** — specyficzne dla danej gry, w jej folderze
+- **GameManager** — obsługuje zmianę między grami i załadowanie scen
