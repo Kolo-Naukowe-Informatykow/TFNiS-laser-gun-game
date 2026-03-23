@@ -5,18 +5,11 @@
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_27jvt"]
 shader = ExtResource("1_pok0e")
-shader_parameter/background_color = Color(0.02, 0.04, 0.12, 1)
-shader_parameter/aspect_ratio = 1.0
-shader_parameter/density = 1.3
-shader_parameter/layer_parascale = 4
-shader_parameter/star_speed = Vector2(0, 0)
-shader_parameter/star_wave = Vector2(0, 0)
-shader_parameter/star_size = 3.0
-shader_parameter/star_rotate_speed = 0.5
-shader_parameter/twinkle_effect = 0.6
-shader_parameter/twinkle_speed = 0.3
-shader_parameter/pixelate_enabled = false
-shader_parameter/pixelate_count = 1000.0
+shader_parameter/ray_march_steps = 96
+shader_parameter/nebula_steps = 2
+shader_parameter/enable_black_holes = false
+shader_parameter/flight_speed = 6.0000000894072
+shader_parameter/star_threshold = 0.9
 
 [node name="SpaceShooter" type="Node" unique_id=1948598634]
 script = ExtResource("1_27jvt")
