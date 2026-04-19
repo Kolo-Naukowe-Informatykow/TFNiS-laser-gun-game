@@ -1,8 +1,8 @@
 [gd_scene format=3 uid="uid://cf0q6ah03gihc"]
 
 [ext_resource type="Script" uid="uid://4j01rf4aomq4" path="res://Source/Games/SpaceShooter/Enemies/Enemy.cs" id="1_5nupk"]
-[ext_resource type="PackedScene" uid="uid://byych2c5s1bn3" path="res://Source/Common/Components/HealthComponent/HealthComponent.tscn" id="2_1s62b"]
-[ext_resource type="PackedScene" uid="uid://dv6mipm7020jl" path="res://Source/Common/Components/HitboxComponent/HitboxComponent.tscn" id="3_6ji3l"]
+[ext_resource type="PackedScene" uid="uid://byych2c5s1bn3" path="res://Source/Components/HealthComponent/HealthComponent.tscn" id="2_1s62b"]
+[ext_resource type="PackedScene" uid="uid://dv6mipm7020jl" path="res://Source/Components/HitboxComponent/HitboxComponent.tscn" id="3_6ji3l"]
 [ext_resource type="Texture2D" uid="uid://bfxgcnqdickmj" path="res://icon.svg" id="4_6ji3l"]
 
 [node name="Enemy" type="CharacterBody2D" unique_id=166932931]

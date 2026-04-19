@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://c24djpbpb1n8t"]
+
+[ext_resource type="Script" uid="uid://bb51ca2tgsghs" path="res://Source/Games/SpaceShooter/EnemySpawner/EnemySpawner.cs" id="1_qrh2f"]
+[ext_resource type="PackedScene" uid="uid://bmyfuicwqu1rv" path="res://Source/Games/SpaceShooter/Enemies/BasicSpaceship/BasicSpaceship.tscn" id="2_ug66a"]
+
+[node name="EnemySpawner" type="Node" unique_id=10016692]
+script = ExtResource("1_qrh2f")
+_enemyScenes = Array[PackedScene]([ExtResource("2_ug66a")])

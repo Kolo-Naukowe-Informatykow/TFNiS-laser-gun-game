@@ -1,0 +1,10 @@
+[gd_scene format=3 uid="uid://dfao7kc65xkj"]
+
+[ext_resource type="Script" uid="uid://c4vwgbxsyn6ic" path="res://Source/Games/SpaceShooter/Player/Player.cs" id="1_8018l"]
+[ext_resource type="PackedScene" uid="uid://byych2c5s1bn3" path="res://Source/Components/HealthComponent/HealthComponent.tscn" id="2_onf8u"]
+
+[node name="Player" type="Node" unique_id=2106631054 node_paths=PackedStringArray("_healthComponent")]
+script = ExtResource("1_8018l")
+_healthComponent = NodePath("HealthComponent")
+
+[node name="HealthComponent" parent="." unique_id=234405220 instance=ExtResource("2_onf8u")]
