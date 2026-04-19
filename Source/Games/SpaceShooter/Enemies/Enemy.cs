@@ -57,6 +57,7 @@ namespace SpaceShooter.Enemies
 		public override void _Ready()
 		{
 			Scale = Vector2.One * Mathf.Max(0.01f, _minScale);
+			
 		}
 
 		public override void _Process(double delta)
@@ -104,6 +105,11 @@ namespace SpaceShooter.Enemies
 			_pausePointX = GetPausePointX(viewportSize);
 			GlobalPosition = _startPoint;
 			Scale = Vector2.One * Mathf.Max(0.01f, _minScale);
+		}
+
+		public void HandleDeath()
+		{
+			QueueFree();
 		}
 
 		private float GetPatternDepthStep(float delta)

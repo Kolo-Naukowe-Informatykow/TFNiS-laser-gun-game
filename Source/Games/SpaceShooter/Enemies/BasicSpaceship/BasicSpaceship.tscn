@@ -3,6 +3,15 @@
 [ext_resource type="PackedScene" uid="uid://cf0q6ah03gihc" path="res://Source/Games/SpaceShooter/Enemies/Enemy.tscn" id="1_q84gk"]
 [ext_resource type="Script" uid="uid://dkhhx7nvag5lo" path="res://Source/Games/SpaceShooter/Enemies/BasicSpaceship/BasicSpaceship.cs" id="2_ig00e"]
 
+[sub_resource type="CircleShape2D" id="CircleShape2D_ig00e"]
+radius = 69.00725
+
 [node name="BasicSpaceship" unique_id=166932931 instance=ExtResource("1_q84gk")]
 script = ExtResource("2_ig00e")
+_depthSpeed = 0.18
 _flightPattern = 3
+
+[node name="CollisionShape2D" parent="HitboxComponent" parent_id_path=PackedInt32Array(1387659574) index="0" unique_id=2022642430]
+shape = SubResource("CircleShape2D_ig00e")
+
+[editable path="HitboxComponent"]

@@ -36,7 +36,18 @@ public partial class SpaceShooterGameManager : Node
 			return Instance;
 		}
 
-		return context?.GetNodeOrNull<SpaceShooterGameManager>("/root/GameManager");
+		if (context == null)
+		{
+			return null;
+		}
+
+		Node currentScene = context.GetTree()?.CurrentScene;
+		if (currentScene == null)
+		{
+			return null;
+		}
+
+		return currentScene.GetNodeOrNull<SpaceShooterGameManager>("SpaceShooterGameManager");
 	}
 
 	public void ActivateSpaceShooter(Player player)

@@ -13,4 +13,5 @@ texture = ExtResource("4_6ji3l")
 
 [node name="HealthComponent" parent="." unique_id=234405220 instance=ExtResource("2_1s62b")]
 
-[node name="HitboxComponent" parent="." unique_id=1387659574 instance=ExtResource("3_6ji3l")]
+[node name="HitboxComponent" parent="." unique_id=1387659574 node_paths=PackedStringArray("HealthComponent") instance=ExtResource("3_6ji3l")]
+HealthComponent = NodePath("../HealthComponent")
