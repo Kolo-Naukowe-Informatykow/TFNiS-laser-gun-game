@@ -2,7 +2,14 @@
 
 [ext_resource type="Script" uid="uid://bb51ca2tgsghs" path="res://Source/Games/SpaceShooter/EnemySpawner/EnemySpawner.cs" id="1_qrh2f"]
 [ext_resource type="PackedScene" uid="uid://bmyfuicwqu1rv" path="res://Source/Games/SpaceShooter/Enemies/BasicSpaceship/BasicSpaceship.tscn" id="2_ug66a"]
+[ext_resource type="PackedScene" uid="uid://bthuiu2x4hldx" path="res://Source/Games/SpaceShooter/Enemies/EaseInOutSpaceship/EaseInOutSpaceship.tscn" id="3_mydgk"]
+[ext_resource type="PackedScene" uid="uid://baa84gt1vqtm2" path="res://Source/Games/SpaceShooter/Enemies/BasicSpaceshipLarge/BasicSpaceshipLarge.tscn" id="4_ddq7d"]
+[ext_resource type="PackedScene" uid="uid://dhwny5xbxoyik" path="res://Source/Games/SpaceShooter/Enemies/EaseInOutSpaceshipLarge/EaseInOutSpaceshipLarge.tscn" id="5_m3xnw"]
+[ext_resource type="PackedScene" uid="uid://cr4coprekgkho" path="res://Source/Games/SpaceShooter/Enemies/PauseSpaceship/PauseSpaceship.tscn" id="6_rr81w"]
+[ext_resource type="PackedScene" uid="uid://dvjs1rpe1ro26" path="res://Source/Games/SpaceShooter/Enemies/SlalomSpaceship/SlalomSpaceship.tscn" id="7_wak2w"]
+[ext_resource type="PackedScene" uid="uid://csgbro2ltnk33" path="res://Source/Games/SpaceShooter/Enemies/PauseSpaceshipLarge/PauseSpaceshipLarge.tscn" id="8_lmjlk"]
+[ext_resource type="PackedScene" uid="uid://ce5khne4hsegs" path="res://Source/Games/SpaceShooter/Enemies/SlalomSpaceshipLarge/SlalomSpaceshipLarge.tscn" id="9_31lqs"]
 
 [node name="EnemySpawner" type="Node" unique_id=10016692]
 script = ExtResource("1_qrh2f")
-_enemyScenes = Array[PackedScene]([ExtResource("2_ug66a")])
+_enemyScenes = Array[PackedScene]([ExtResource("2_ug66a"), ExtResource("3_mydgk"), ExtResource("4_ddq7d"), ExtResource("5_m3xnw"), ExtResource("6_rr81w"), ExtResource("7_wak2w"), ExtResource("8_lmjlk"), ExtResource("9_31lqs")])

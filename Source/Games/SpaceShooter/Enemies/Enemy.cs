@@ -39,8 +39,9 @@ namespace SpaceShooter.Enemies
 		private Vector2 _baseSpriteLocalPosition = Vector2.Zero;
 		private bool _isDying;
 
-		[Export] private float _minScale = 0.2f;
-		[Export] private float _maxScale = 1.2f;
+		[Export] private float _minScale = 0.06f;
+		[Export] private float _maxScale = 1.0f;
+		[Export] private Curve _scaleCurve;
 		[Export] private float _depthSpeed = 0.1f;
 		[Export] private float _horizontalExpansion = 2.4f;
 		[Export] private int _damageOnEscape = 10;
@@ -116,7 +117,7 @@ namespace SpaceShooter.Enemies
 			float currentX = GetPatternX(viewportSize, _depthProgress);
 
 			GlobalPosition = new Vector2(currentX, currentY);
-			float currentScale = Mathf.Lerp(_minScale, _maxScale, _depthProgress);
+			float currentScale = Mathf.Lerp(_minScale, _maxScale, EvaluateScaleProgress(_depthProgress));
 			Scale = Vector2.One * Mathf.Max(0.01f, currentScale);
 
 			if (_depthProgress >= 1f)
@@ -140,7 +141,8 @@ namespace SpaceShooter.Enemies
 			_endPoint = new Vector2(GetTargetLaneX(viewportSize), viewportSize.Y + _endYMargin);
 			_pausePointX = GetPausePointX(viewportSize);
 			GlobalPosition = _startPoint;
-			Scale = Vector2.One * Mathf.Max(0.01f, _minScale);
+			float initialScale = Mathf.Lerp(_minScale, _maxScale, EvaluateScaleProgress(0f));
+			Scale = Vector2.One * Mathf.Max(0.01f, initialScale);
 		}
 
 		public void HandleDeath()
@@ -200,6 +202,17 @@ namespace SpaceShooter.Enemies
 			}
 
 			_hitShakeTween.TweenProperty(_sprite, "position", _baseSpriteLocalPosition, stepDuration);
+		}
+
+		private float EvaluateScaleProgress(float progress)
+		{
+			float clamped = Mathf.Clamp(progress, 0f, 1f);
+			if (_scaleCurve == null)
+			{
+				return clamped;
+			}
+
+			return Mathf.Clamp(_scaleCurve.SampleBaked(clamped), 0f, 1f);
 		}
 
 		private float GetPatternDepthStep(float delta)

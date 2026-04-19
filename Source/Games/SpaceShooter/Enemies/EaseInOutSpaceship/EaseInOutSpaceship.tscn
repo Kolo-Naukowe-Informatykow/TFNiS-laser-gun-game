@@ -1,0 +1,24 @@
+[gd_scene format=3 uid="uid://bthuiu2x4hldx"]
+
+[ext_resource type="PackedScene" uid="uid://cf0q6ah03gihc" path="res://Source/Games/SpaceShooter/Enemies/Enemy.tscn" id="1_rmt7x"]
+[ext_resource type="Script" uid="uid://c6xw2ewniq2s5" path="res://Source/Games/SpaceShooter/Enemies/EaseInOutSpaceship/EaseInOutSpaceship.cs" id="2_vmrqd"]
+[ext_resource type="Texture2D" uid="uid://b6uvgltfjwd62" path="res://Assets/Textures/SpaceShooter/Enemies/Ship_2_C_Large.png" id="3_eq08e"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_12soa"]
+radius = 296.28534
+
+[node name="EaseInOutSpaceship" unique_id=828742235 instance=ExtResource("1_rmt7x")]
+script = ExtResource("2_vmrqd")
+_maxScale = 0.8
+_flightPattern = 2
+
+[node name="Sprite2D" parent="." index="0" unique_id=706178824]
+texture = ExtResource("3_eq08e")
+
+[node name="HealthComponent" parent="." index="1" unique_id=234405220]
+MaxHp = 200
+
+[node name="CollisionShape2D" parent="HitboxComponent" parent_id_path=PackedInt32Array(1387659574) index="0" unique_id=2022642430]
+shape = SubResource("CircleShape2D_12soa")
+
+[editable path="HitboxComponent"]
