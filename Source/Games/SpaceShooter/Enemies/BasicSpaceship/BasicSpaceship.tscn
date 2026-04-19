@@ -9,7 +9,9 @@ radius = 69.00725
 [node name="BasicSpaceship" unique_id=166932931 instance=ExtResource("1_q84gk")]
 script = ExtResource("2_ig00e")
 _depthSpeed = 0.18
-_flightPattern = 3
+
+[node name="HealthComponent" parent="." index="1" unique_id=234405220]
+MaxHp = 200
 
 [node name="CollisionShape2D" parent="HitboxComponent" parent_id_path=PackedInt32Array(1387659574) index="0" unique_id=2022642430]
 shape = SubResource("CircleShape2D_ig00e")

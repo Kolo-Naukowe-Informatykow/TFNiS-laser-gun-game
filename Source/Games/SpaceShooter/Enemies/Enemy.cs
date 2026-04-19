@@ -30,6 +30,14 @@ namespace SpaceShooter.Enemies
 		[Signal] public delegate void EscapedEventHandler(int damageToPlayer);
 
 		private readonly RandomNumberGenerator _rng = new();
+		private Tween _damageFlashTween;
+		private Tween _hitShakeTween;
+		private Sprite2D _sprite;
+		private HealthComponent _healthComponent;
+		[Export] private ParticlesComponent _particlesComponent;
+		private Color _baseSpriteColor = Colors.White;
+		private Vector2 _baseSpriteLocalPosition = Vector2.Zero;
+		private bool _isDying;
 
 		[Export] private float _minScale = 0.2f;
 		[Export] private float _maxScale = 1.2f;
@@ -42,6 +50,12 @@ namespace SpaceShooter.Enemies
 		[Export] private float _pauseAtProgress = 0.35f;
 		[Export] private float _pauseDuration = 0.45f;
 		[Export] private float _burstMultiplier = 1.8f;
+		[Export] private Color _damageFlashColor = new Color(1f, 0.22f, 0.22f, 1f);
+		[Export] private float _damageFlashInDuration = 0.06f;
+		[Export] private float _damageFlashOutDuration = 0.16f;
+		[Export] private float _hitShakeDuration = 0.16f;
+		[Export] private float _hitShakeStrength = 16.0f;
+		[Export] private int _hitShakeSteps = 12;
 
 		[Export] private EnemyFlightPattern _flightPattern = EnemyFlightPattern.Forward;
 		private Vector2 _startPoint;
@@ -56,8 +70,30 @@ namespace SpaceShooter.Enemies
 
 		public override void _Ready()
 		{
+			_sprite = GetNodeOrNull<Sprite2D>("Sprite2D");
+			if (_sprite != null)
+			{
+				_baseSpriteColor = _sprite.Modulate;
+				_baseSpriteLocalPosition = _sprite.Position;
+			}
+
+			_healthComponent = GetNodeOrNull<HealthComponent>("HealthComponent");
+			if (_healthComponent != null)
+			{
+				_healthComponent.HealthChanged += OnHealthChanged;
+			}
+
+			_particlesComponent ??= GetNodeOrNull<ParticlesComponent>("ParticlesComponent");
+
 			Scale = Vector2.One * Mathf.Max(0.01f, _minScale);
-			
+		}
+
+		public override void _ExitTree()
+		{
+			if (_healthComponent != null)
+			{
+				_healthComponent.HealthChanged -= OnHealthChanged;
+			}
 		}
 
 		public override void _Process(double delta)
@@ -109,7 +145,61 @@ namespace SpaceShooter.Enemies
 
 		public void HandleDeath()
 		{
+			if (_isDying)
+			{
+				return;
+			}
+
+			_isDying = true;
+			_particlesComponent?.EmitAt(GlobalPosition, GetParent());
 			QueueFree();
+		}
+
+		private void OnHealthChanged(int currentHp, int maxHp)
+		{
+			if (_sprite == null || _isDying)
+			{
+				return;
+			}
+
+			_damageFlashTween?.Kill();
+			_damageFlashTween = CreateTween();
+			_damageFlashTween.TweenProperty(_sprite, "modulate", _damageFlashColor, Mathf.Max(0.01f, _damageFlashInDuration));
+			_damageFlashTween.TweenProperty(_sprite, "modulate", _baseSpriteColor, Mathf.Max(0.01f, _damageFlashOutDuration));
+
+			if (currentHp > 0)
+			{
+				PlayHitShake();
+			}
+		}
+
+
+		private void PlayHitShake()
+		{
+			if (_sprite == null)
+			{
+				return;
+			}
+
+			_hitShakeTween?.Kill();
+			_sprite.Position = _baseSpriteLocalPosition;
+
+			int steps = Math.Max(1, _hitShakeSteps);
+			float totalDuration = Mathf.Max(0.01f, _hitShakeDuration);
+			float stepDuration = totalDuration / (steps + 1f);
+
+			_hitShakeTween = CreateTween();
+			for (int i = 0; i < steps; i++)
+			{
+				Vector2 offset = new Vector2(
+					_rng.RandfRange(-_hitShakeStrength, _hitShakeStrength),
+					_rng.RandfRange(-_hitShakeStrength, _hitShakeStrength)
+				);
+
+				_hitShakeTween.TweenProperty(_sprite, "position", _baseSpriteLocalPosition + offset, stepDuration);
+			}
+
+			_hitShakeTween.TweenProperty(_sprite, "position", _baseSpriteLocalPosition, stepDuration);
 		}
 
 		private float GetPatternDepthStep(float delta)

@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://1mxe5adtkto4"]
+
+[ext_resource type="Script" uid="uid://ck8sdidtgn1ui" path="res://Source/Components/ParticlesComponent/ParticlesComponent.cs" id="1_gghe8"]
+
+[node name="ParticlesComponent" type="Node" unique_id=1551839413]
+script = ExtResource("1_gghe8")
