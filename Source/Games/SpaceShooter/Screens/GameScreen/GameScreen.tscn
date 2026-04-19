@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://btf7emechpfwl" path="res://Source/Games/SpaceShooter/Screens/GameScreen/GameScreen.cs" id="1_5ju02"]
 [ext_resource type="Shader" uid="uid://youe7ku7aqrc" path="res://Source/Shaders/Space.gdshader" id="2_1psa7"]
+[ext_resource type="PackedScene" uid="uid://d4jksgdrpttwn" path="res://Source/Components/Crosshair/Crosshair.tscn" id="3_2pixf"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_27jvt"]
 shader = ExtResource("2_1psa7")
@@ -21,3 +22,5 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+
+[node name="Crosshair" parent="." unique_id=1912713569 instance=ExtResource("3_2pixf")]

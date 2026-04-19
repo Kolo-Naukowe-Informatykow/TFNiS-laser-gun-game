@@ -1,0 +1,115 @@
+using Godot;
+using System;
+
+public partial class Crosshair : CanvasLayer
+{
+    [Export] private TextureRect _crosshairTextureRect;
+
+    [Export] private TextureRect _glowTextureRect;
+
+    private Tween _pulseTween;
+    private Vector2 _baseScale = Vector2.One;
+    private Vector2 _glowBaseScale = Vector2.One;
+    private Color _baseColor = Colors.White;
+    private Color _glowBaseColor = new Color(1f, 1f, 1f, 0.16f);
+
+    public override void _Ready()
+    {
+        Input.MouseMode = Input.MouseModeEnum.Hidden;
+        ProcessMode = ProcessModeEnum.Always;
+
+        CallDeferred(nameof(RefreshPivotOffsets));
+
+        if (_crosshairTextureRect != null)
+        {
+            _baseScale = _crosshairTextureRect.Scale;
+            _baseColor = _crosshairTextureRect.Modulate;
+        }
+
+        if (_glowTextureRect != null)
+        {
+            _glowBaseScale = _glowTextureRect.Scale;
+            _glowBaseColor = _glowTextureRect.Modulate;
+        }
+    }
+
+    public override void _Process(double delta)
+    {
+        if (_crosshairTextureRect == null)
+        {
+            return;
+        }
+
+        var mousePosition = GetViewport().GetMousePosition();
+        _crosshairTextureRect.GlobalPosition = mousePosition - (_crosshairTextureRect.Size * 0.5f);
+
+        if (_glowTextureRect != null)
+        {
+            _glowTextureRect.GlobalPosition = mousePosition - (_glowTextureRect.Size * 0.5f);
+        }
+    }
+
+    public override void _Input(InputEvent @event)
+    {
+        if (@event.IsActionPressed("Shoot"))
+        {
+            PlayShotPulse();
+        }
+    }
+
+    public override void _ExitTree()
+    {
+        Input.MouseMode = Input.MouseModeEnum.Visible;
+    }
+
+    private void PlayShotPulse()
+    {
+        if (_crosshairTextureRect == null)
+        {
+            return;
+        }
+
+        RefreshPivotOffsets();
+        _pulseTween?.Kill();
+
+        var hitColor = new Color(1f, 0.15f, 0.15f, 1f);
+        var glowColor = new Color(1f, 0.25f, 0.25f, 0.42f);
+
+        _pulseTween = CreateTween();
+        _pulseTween.SetParallel(true);
+        _pulseTween.TweenProperty(_crosshairTextureRect, "scale", _baseScale * 1.18f, 0.045f);
+        _pulseTween.TweenProperty(_crosshairTextureRect, "modulate", hitColor, 0.045f);
+
+        if (_glowTextureRect != null)
+        {
+            _pulseTween.TweenProperty(_glowTextureRect, "scale", _glowBaseScale * 1.35f, 0.045f);
+            _pulseTween.TweenProperty(_glowTextureRect, "modulate", glowColor, 0.045f);
+        }
+
+        _pulseTween.SetParallel(false);
+        _pulseTween.TweenInterval(0.035f);
+
+        _pulseTween.SetParallel(true);
+        _pulseTween.TweenProperty(_crosshairTextureRect, "scale", _baseScale, 0.08f);
+        _pulseTween.TweenProperty(_crosshairTextureRect, "modulate", _baseColor, 0.08f);
+
+        if (_glowTextureRect != null)
+        {
+            _pulseTween.TweenProperty(_glowTextureRect, "scale", _glowBaseScale, 0.08f);
+            _pulseTween.TweenProperty(_glowTextureRect, "modulate", _glowBaseColor, 0.08f);
+        }
+    }
+
+    private void RefreshPivotOffsets()
+    {
+        if (_crosshairTextureRect != null)
+        {
+            _crosshairTextureRect.PivotOffset = _crosshairTextureRect.Size * 0.5f;
+        }
+
+        if (_glowTextureRect != null)
+        {
+            _glowTextureRect.PivotOffset = _glowTextureRect.Size * 0.5f;
+        }
+    }
+}
