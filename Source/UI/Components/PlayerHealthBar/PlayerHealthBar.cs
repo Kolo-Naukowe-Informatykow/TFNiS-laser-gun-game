@@ -19,7 +19,7 @@ public partial class PlayerHealthBar : Control
         _gameManager = SpaceShooterGameManager.GetOrNull(this);
         if (_gameManager == null)
         {
-            GD.PushWarning("PlayerHealthBar: nie znaleziono GameManager (autoload /root/GameManager).");
+            GD.PushWarning("PlayerHealthBar: nie znaleziono SpaceShooterGameManager (oczekiwany node: CurrentScene/SpaceShooterGameManager).");
             return;
         }
 

@@ -71,6 +71,15 @@ namespace SpaceShooter.Enemies
 
 		public override void _Ready()
 		{
+			if (GlobalGameManager.Instance != null)
+			{
+				GlobalGameManager.Instance.SeedRngUnique(_rng, nameof(Enemy));
+			}
+			else
+			{
+				_rng.Randomize();
+			}
+
 			_sprite = GetNodeOrNull<Sprite2D>("Sprite2D");
 			if (_sprite != null)
 			{
@@ -253,7 +262,6 @@ namespace SpaceShooter.Enemies
 				: progress;
 
 			float pathX = Mathf.Lerp(startX, endX, pathProgress);
-			float spread = viewportSize.X * 0.5f * _horizontalExpansion;
 
 			switch (_flightPattern)
 			{

@@ -4,10 +4,12 @@ using System;
 public partial class TimerLabel : Label
 {
 	private double _elapsedTime;
+	private int _lastDisplayedSecond;
 
 	public override void _Ready()
 	{
 		_elapsedTime = 0d;
+		_lastDisplayedSecond = -1;
 		UpdateLabel();
 	}
 
@@ -19,7 +21,16 @@ public partial class TimerLabel : Label
 
 	private void UpdateLabel()
 	{
-		int totalSeconds = Mathf.FloorToInt((float)_elapsedTime);
+		double flooredSeconds = Math.Floor(_elapsedTime);
+		flooredSeconds = Math.Clamp(flooredSeconds, 0d, int.MaxValue);
+		int totalSeconds = (int)flooredSeconds;
+
+		if (totalSeconds == _lastDisplayedSecond)
+		{
+			return;
+		}
+
+		_lastDisplayedSecond = totalSeconds;
 		int hours = totalSeconds / 3600;
 		int minutes = (totalSeconds % 3600) / 60;
 		int seconds = totalSeconds % 60;

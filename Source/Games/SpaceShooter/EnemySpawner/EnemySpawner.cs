@@ -11,13 +11,21 @@ public partial class EnemySpawner : Node
     [Export] private float _spawnIntervalMin = 1.2f;
     [Export] private float _spawnIntervalMax = 2.1f;
     [Export] private float _horizonY = 120f;
-    [Export] private float _horizontalSpawnRange = 0.7f;
 
     private readonly RandomNumberGenerator _rng = new();
     private Timer _spawnTimer;
 
     public override void _Ready()
     {
+        if (GlobalGameManager.Instance != null)
+        {
+            GlobalGameManager.Instance.SeedRngUnique(_rng, nameof(EnemySpawner));
+        }
+        else
+        {
+            _rng.Randomize();
+        }
+
         _spawnTimer = new Timer
         {
             OneShot = true,
@@ -70,7 +78,14 @@ public partial class EnemySpawner : Node
         }
 
         Node parent = _spawnParent ?? GetParent();
-        parent?.AddChild(enemy);
+        if (parent == null)
+        {
+            GD.PushWarning("EnemySpawner: brak parenta dla spawnowanego przeciwnika. Spawn anulowany.");
+            enemy.QueueFree();
+            return;
+        }
+
+        parent.AddChild(enemy);
 
         EnemySpawnOrigin spawnOrigin = PickSpawnOrigin();
         EnemyTargetLane targetLane = PickTargetLane(spawnOrigin);

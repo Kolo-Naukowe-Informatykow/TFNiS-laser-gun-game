@@ -70,7 +70,7 @@ public partial class ParticlesComponent : Node
 		particles.Emitting = true;
 
 		float fadeDuration = Mathf.Clamp(_fadeOutDuration, 0.05f, (float)particles.Lifetime);
-		Tween fadeTween = CreateTween();
+		Tween fadeTween = particles.CreateTween();
 		fadeTween.TweenInterval(Mathf.Max(0.01f, particles.Lifetime - fadeDuration));
 		fadeTween.TweenProperty(particles, "modulate", new Color(1f, 1f, 1f, 0f), fadeDuration);
 
