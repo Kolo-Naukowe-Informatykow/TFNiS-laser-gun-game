@@ -13,6 +13,20 @@ namespace SpaceShooter.Enemies
 		PauseBurst = 5
 	}
 
+	public enum EnemySpawnOrigin
+	{
+		TopLeft = 0,
+		TopCenter = 1,
+		TopRight = 2
+	}
+
+	public enum EnemyTargetLane
+	{
+		BottomLeft = 0,
+		BottomCenter = 1,
+		BottomRight = 2
+	}
+
 	public partial class Enemy : Node2D
 	{
 		[Signal] public delegate void EscapedEventHandler(int damageToPlayer);
@@ -31,7 +45,9 @@ namespace SpaceShooter.Enemies
 
 		[Export] private EnemyFlightPattern _flightPattern = EnemyFlightPattern.Forward;
 		private Vector2 _startPoint;
-		private float _normalizedHorizontalOffset;
+		private Vector2 _endPoint;
+		private EnemySpawnOrigin _spawnOrigin = EnemySpawnOrigin.TopCenter;
+		private EnemyTargetLane _targetLane = EnemyTargetLane.BottomCenter;
 		private float _depthProgress;
 		private bool _pauseConsumed;
 		private float _pauseTimeLeft;
@@ -71,15 +87,17 @@ namespace SpaceShooter.Enemies
 			}
 		}
 
-		public void ConfigureSpawn(float normalizedHorizontalOffset, float startY)
+		public void ConfigureSpawn(float startY, EnemySpawnOrigin spawnOrigin, EnemyTargetLane targetLane)
 		{
 			_depthProgress = 0f;
 			_pauseConsumed = false;
 			_pauseTimeLeft = 0f;
-			_normalizedHorizontalOffset = Mathf.Clamp(normalizedHorizontalOffset, -1f, 1f);
+			_spawnOrigin = spawnOrigin;
+			_targetLane = targetLane;
 
 			Vector2 viewportSize = GetViewportRect().Size;
-			_startPoint = new Vector2(viewportSize.X * 0.5f, startY);
+			_startPoint = new Vector2(GetSpawnOriginX(viewportSize), startY);
+			_endPoint = new Vector2(GetTargetLaneX(viewportSize), viewportSize.Y + _endYMargin);
 			GlobalPosition = _startPoint;
 			Scale = Vector2.One * Mathf.Max(0.01f, _minScale);
 		}
@@ -118,35 +136,72 @@ namespace SpaceShooter.Enemies
 
 		private float GetPatternX(Vector2 viewportSize, float progress)
 		{
-			float centerX = viewportSize.X * 0.5f;
+			float startX = _startPoint.X;
+			float endX = _endPoint.X;
+			float pathX = Mathf.Lerp(startX, endX, progress);
 			float spread = viewportSize.X * 0.5f * _horizontalExpansion;
-			float sideMargin = viewportSize.X * 0.1f;
 
 			switch (_flightPattern)
 			{
 				case EnemyFlightPattern.LeftToRight:
 				{
-					float leftX = -sideMargin;
-					float rightX = viewportSize.X + sideMargin;
-					return Mathf.Lerp(leftX, rightX, progress);
+					float curve = Mathf.Abs(endX - startX) * 0.25f;
+					return pathX + (curve * progress);
 				}
 				case EnemyFlightPattern.RightToLeft:
 				{
-					float leftX = -sideMargin;
-					float rightX = viewportSize.X + sideMargin;
-					return Mathf.Lerp(rightX, leftX, progress);
+					float curve = Mathf.Abs(endX - startX) * 0.25f;
+					return pathX - (curve * progress);
 				}
 				case EnemyFlightPattern.Slalom:
 				{
-					float baseX = centerX + (_normalizedHorizontalOffset * spread * progress);
+					float baseX = pathX;
 					float wave = Mathf.Sin(progress * Mathf.Pi * 2f * Mathf.Max(0.1f, _slalomFrequency));
 					return baseX + (wave * viewportSize.X * Mathf.Max(0f, _slalomAmplitude));
 				}
+				case EnemyFlightPattern.EaseInOut:
+				case EnemyFlightPattern.PauseBurst:
+				case EnemyFlightPattern.Forward:
 				default:
 				{
-					float currentXOffset = _normalizedHorizontalOffset * spread * progress;
-					return centerX + currentXOffset;
+					return pathX;
 				}
+			}
+		}
+
+		private float GetSpawnOriginX(Vector2 viewportSize)
+		{
+			float sideMargin = viewportSize.X * 0.1f;
+			float leftX = sideMargin;
+			float centerX = viewportSize.X * 0.5f;
+			float rightX = viewportSize.X - sideMargin;
+
+			switch (_spawnOrigin)
+			{
+				case EnemySpawnOrigin.TopLeft:
+					return leftX;
+				case EnemySpawnOrigin.TopRight:
+					return rightX;
+				default:
+					return centerX;
+			}
+		}
+
+		private float GetTargetLaneX(Vector2 viewportSize)
+		{
+			float sideMargin = viewportSize.X * 0.1f;
+			float leftX = sideMargin;
+			float centerX = viewportSize.X * 0.5f;
+			float rightX = viewportSize.X - sideMargin;
+
+			switch (_targetLane)
+			{
+				case EnemyTargetLane.BottomLeft:
+					return leftX;
+				case EnemyTargetLane.BottomRight:
+					return rightX;
+				default:
+					return centerX;
 			}
 		}
 	}

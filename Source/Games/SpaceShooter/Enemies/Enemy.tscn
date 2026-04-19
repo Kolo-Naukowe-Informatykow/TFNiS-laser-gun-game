@@ -5,7 +5,7 @@
 [ext_resource type="PackedScene" uid="uid://dv6mipm7020jl" path="res://Source/Components/HitboxComponent/HitboxComponent.tscn" id="3_6ji3l"]
 [ext_resource type="Texture2D" uid="uid://bfxgcnqdickmj" path="res://icon.svg" id="4_6ji3l"]
 
-[node name="Enemy" type="CharacterBody2D" unique_id=166932931]
+[node name="Enemy" type="Node2D" unique_id=828742235]
 script = ExtResource("1_5nupk")
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=706178824]

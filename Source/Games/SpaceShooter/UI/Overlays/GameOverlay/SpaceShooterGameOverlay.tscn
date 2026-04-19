@@ -2,6 +2,8 @@
 
 [ext_resource type="Script" uid="uid://c7lce0ctp2dpu" path="res://Source/Games/SpaceShooter/UI/Overlays/GameOverlay/SpaceShooterGameOverlay.cs" id="1_vd0ah"]
 [ext_resource type="PackedScene" uid="uid://b4hhixponsx6o" path="res://Source/UI/Components/PlayerHealthBar/PlayerHealthBar.tscn" id="2_epdm0"]
+[ext_resource type="Theme" uid="uid://c0b4jxh0af4yt" path="res://Assets/Themes/SpaceShooter/SpaceShooterTheme.tres" id="2_g3187"]
+[ext_resource type="PackedScene" uid="uid://22004fnnp6l4" path="res://Source/UI/Components/TimerLabel/TimerLabel.tscn" id="3_gicvg"]
 
 [node name="SpaceShooterGameOverlay" type="Control" unique_id=878110085]
 layout_mode = 3
@@ -32,6 +34,26 @@ layout_mode = 2
 [node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer" unique_id=517550850]
 layout_mode = 2
 size_flags_vertical = 3
+
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/VBoxContainer/HBoxContainer" unique_id=2070578820]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="MarginContainer2" type="MarginContainer" parent="MarginContainer/VBoxContainer/HBoxContainer" unique_id=2095651612]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="PanelContainer" type="PanelContainer" parent="MarginContainer/VBoxContainer/HBoxContainer/MarginContainer2" unique_id=433669554]
+layout_mode = 2
+size_flags_horizontal = 4
+theme = ExtResource("2_g3187")
+
+[node name="TimerLabel" parent="MarginContainer/VBoxContainer/HBoxContainer/MarginContainer2/PanelContainer" unique_id=2075230699 instance=ExtResource("3_gicvg")]
+layout_mode = 2
+
+[node name="MarginContainer3" type="MarginContainer" parent="MarginContainer/VBoxContainer/HBoxContainer" unique_id=604904485]
+layout_mode = 2
+size_flags_horizontal = 3
 
 [node name="HBoxContainer2" type="HBoxContainer" parent="MarginContainer/VBoxContainer" unique_id=897935038]
 layout_mode = 2

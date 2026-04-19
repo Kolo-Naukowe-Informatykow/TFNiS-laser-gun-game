@@ -72,13 +72,34 @@ public partial class EnemySpawner : Node
         Node parent = _spawnParent ?? GetParent();
         parent?.AddChild(enemy);
 
+        EnemySpawnOrigin spawnOrigin = PickSpawnOrigin();
+        EnemyTargetLane targetLane = PickTargetLane(spawnOrigin);
+
         enemy.Escaped += OnEnemyEscaped;
-        float horizontalOffset = _rng.RandfRange(-_horizontalSpawnRange, _horizontalSpawnRange);
-        enemy.ConfigureSpawn(horizontalOffset, _horizonY);
+        enemy.ConfigureSpawn(_horizonY, spawnOrigin, targetLane);
     }
 
     private void OnEnemyEscaped(int damageToPlayer)
     {
         EmitSignal(SignalName.EnemyEscaped, damageToPlayer);
+    }
+
+    private EnemySpawnOrigin PickSpawnOrigin()
+    {
+        int index = _rng.RandiRange(0, 2);
+        return (EnemySpawnOrigin)index;
+    }
+
+    private EnemyTargetLane PickTargetLane(EnemySpawnOrigin spawnOrigin)
+    {
+        switch (spawnOrigin)
+        {
+            case EnemySpawnOrigin.TopLeft:
+                return _rng.Randf() < 0.5f ? EnemyTargetLane.BottomCenter : EnemyTargetLane.BottomRight;
+            case EnemySpawnOrigin.TopRight:
+                return _rng.Randf() < 0.5f ? EnemyTargetLane.BottomCenter : EnemyTargetLane.BottomLeft;
+            default:
+                return (EnemyTargetLane)_rng.RandiRange(0, 2);
+        }
     }
 }

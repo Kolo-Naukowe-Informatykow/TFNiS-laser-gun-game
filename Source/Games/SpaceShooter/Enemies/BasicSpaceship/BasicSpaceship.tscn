@@ -5,3 +5,4 @@
 
 [node name="BasicSpaceship" unique_id=166932931 instance=ExtResource("1_q84gk")]
 script = ExtResource("2_ig00e")
+_flightPattern = 5
