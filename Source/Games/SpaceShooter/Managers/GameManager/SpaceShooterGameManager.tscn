@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://dpflb5x2qjkk"]
+
+[ext_resource type="Script" uid="uid://b4tckylrt73e4" path="res://Source/Games/SpaceShooter/Managers/GameManager/SpaceShooterGameManager.cs" id="1_o5f8e"]
+
+[node name="SpaceShooterGameManager" type="Node" unique_id=1628530712]
+script = ExtResource("1_o5f8e")

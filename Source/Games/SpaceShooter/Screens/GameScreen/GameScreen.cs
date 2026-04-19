@@ -7,19 +7,33 @@ namespace SpaceShooter.Screens
     {
         [Export] private EnemySpawner _enemySpawner;
         [Export] private Player _player;
-        private HealthComponent _playerHealth;
+        private SpaceShooterGameManager _gameManager;
 
         public override void _Ready()
         {
+            _gameManager = SpaceShooterGameManager.GetOrNull(this);
+
+            if (_gameManager != null)
+            {
+                _gameManager.ActivateSpaceShooter(_player);
+            }
+
             if (_enemySpawner == null)
             {
                 return;
             }
-            if (_player != null)
-            {
-                _playerHealth = _player.HealthComponent;
-            }
+
             _enemySpawner.EnemyEscaped += OnEnemyEscaped;
+        }
+
+        public override void _ExitTree()
+        {
+            if (_enemySpawner != null)
+            {
+                _enemySpawner.EnemyEscaped -= OnEnemyEscaped;
+            }
+
+            _gameManager?.DeactivateSpaceShooter(_player);
         }
 
         private void OnEnemyEscaped(int damageToPlayer)
@@ -27,10 +41,7 @@ namespace SpaceShooter.Screens
             if (_player != null)
             {
                 _player.ReceiveDamage(damageToPlayer);
-                return;
             }
-
-            _playerHealth?.ReceiveDamage(damageToPlayer);
         }
     }
 }

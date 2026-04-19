@@ -1,0 +1,58 @@
+[gd_scene format=3 uid="uid://cio24yld6wtmd"]
+
+[ext_resource type="Script" uid="uid://c7lce0ctp2dpu" path="res://Source/Games/SpaceShooter/UI/Overlays/GameOverlay/SpaceShooterGameOverlay.cs" id="1_vd0ah"]
+[ext_resource type="PackedScene" uid="uid://b4hhixponsx6o" path="res://Source/UI/Components/PlayerHealthBar/PlayerHealthBar.tscn" id="2_epdm0"]
+
+[node name="SpaceShooterGameOverlay" type="Control" unique_id=878110085]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+script = ExtResource("1_vd0ah")
+
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=558097527]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 64
+theme_override_constants/margin_top = 64
+theme_override_constants/margin_right = 64
+theme_override_constants/margin_bottom = 64
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer" unique_id=1252804398]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer" unique_id=517550850]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="MarginContainer/VBoxContainer" unique_id=897935038]
+layout_mode = 2
+size_flags_vertical = 3
+size_flags_stretch_ratio = 12.0
+
+[node name="HBoxContainer3" type="HBoxContainer" parent="MarginContainer/VBoxContainer" unique_id=1362259246]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/VBoxContainer/HBoxContainer3" unique_id=1660084252]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="MarginContainer2" type="MarginContainer" parent="MarginContainer/VBoxContainer/HBoxContainer3" unique_id=345069037]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="PlayerHealthBar" parent="MarginContainer/VBoxContainer/HBoxContainer3/MarginContainer2" unique_id=1790404366 instance=ExtResource("2_epdm0")]
+layout_mode = 2
+
+[node name="MarginContainer3" type="MarginContainer" parent="MarginContainer/VBoxContainer/HBoxContainer3" unique_id=339836403]
+layout_mode = 2
+size_flags_horizontal = 3
