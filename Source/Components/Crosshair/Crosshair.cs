@@ -3,6 +3,13 @@ using System;
 
 public partial class Crosshair : CanvasLayer
 {
+    [Export] private bool _enableLightGunForceFeedback = true;
+    [Export] private string _lightGunVid = "F143";
+    [Export] private int _lightGunBaudRate = 9600;
+    [Export] private string _lightGunStartCommand = "S";
+    [Export] private string _lightGunShotCommand = "F\\x02\\x01";
+    [Export] private string _lightGunExitCommand = "E";
+
     [Export] private TextureRect _crosshairTextureRect;
 
     [Export] private TextureRect _glowTextureRect;
@@ -12,11 +19,18 @@ public partial class Crosshair : CanvasLayer
     private Vector2 _glowBaseScale = Vector2.One;
     private Color _baseColor = Colors.White;
     private Color _glowBaseColor = new Color(1f, 1f, 1f, 0.16f);
+    private LightGunSerialPort _lightGunPort;
 
     public override void _Ready()
     {
         Input.MouseMode = Input.MouseModeEnum.Hidden;
         ProcessMode = ProcessModeEnum.Always;
+
+        if (_enableLightGunForceFeedback)
+        {
+            _lightGunPort = new LightGunSerialPort(_lightGunVid, _lightGunBaudRate);
+            _lightGunPort.SendAscii(_lightGunStartCommand);
+        }
 
         CallDeferred(nameof(RefreshPivotOffsets));
 
@@ -53,12 +67,24 @@ public partial class Crosshair : CanvasLayer
     {
         if (@event.IsActionPressed("Shoot"))
         {
+            if (_enableLightGunForceFeedback)
+            {
+                _lightGunPort?.SendNotation(_lightGunShotCommand);
+            }
+
             PlayShotPulse();
         }
     }
 
     public override void _ExitTree()
     {
+        if (_enableLightGunForceFeedback)
+        {
+            _lightGunPort?.SendAscii(_lightGunExitCommand);
+            _lightGunPort?.Dispose();
+            _lightGunPort = null;
+        }
+
         Input.MouseMode = Input.MouseModeEnum.Visible;
     }
 
