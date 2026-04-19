@@ -1,5 +1,4 @@
 using Godot;
-using System;
 
 public partial class Crosshair : CanvasLayer
 {
@@ -20,6 +19,8 @@ public partial class Crosshair : CanvasLayer
     private Color _baseColor = Colors.White;
     private Color _glowBaseColor = new Color(1f, 1f, 1f, 0.16f);
     private LightGunSerialPort _lightGunPort;
+    private SpaceShooterGameManager _gameManager;
+    private Player _trackedPlayer;
 
     public override void _Ready()
     {
@@ -45,6 +46,22 @@ public partial class Crosshair : CanvasLayer
             _glowBaseScale = _glowTextureRect.Scale;
             _glowBaseColor = _glowTextureRect.Modulate;
         }
+
+		_gameManager = SpaceShooterGameManager.GetOrNull(this);
+        if (_gameManager == null)
+        {
+            _gameManager = GetTree()?.CurrentScene?.GetNodeOrNull<SpaceShooterGameManager>("SpaceShooterGameManager");
+        }
+
+		if (_gameManager != null)
+		{
+			_gameManager.PlayerChanged += OnPlayerChanged;
+			AttachToPlayer(_gameManager.Player);
+        }
+        else
+        {
+            GD.PushWarning("Crosshair: nie znaleziono SpaceShooterGameManager. Strzelanie gracza moze nie dzialac.");
+		}
     }
 
     public override void _Process(double delta)
@@ -61,18 +78,14 @@ public partial class Crosshair : CanvasLayer
         {
             _glowTextureRect.GlobalPosition = mousePosition - (_glowTextureRect.Size * 0.5f);
         }
+
     }
 
     public override void _Input(InputEvent @event)
     {
         if (@event.IsActionPressed("Shoot"))
         {
-            if (_enableLightGunForceFeedback)
-            {
-                _lightGunPort?.SendNotation(_lightGunShotCommand);
-            }
-
-            PlayShotPulse();
+			_trackedPlayer?.RequestShot(GetViewport().GetMousePosition());
         }
     }
 
@@ -85,7 +98,51 @@ public partial class Crosshair : CanvasLayer
             _lightGunPort = null;
         }
 
+        DetachFromPlayer();
+
+        if (_gameManager != null)
+        {
+            _gameManager.PlayerChanged -= OnPlayerChanged;
+        }
+
         Input.MouseMode = Input.MouseModeEnum.Visible;
+    }
+
+    private void OnPlayerChanged(Player player)
+    {
+        AttachToPlayer(player);
+    }
+
+    private void AttachToPlayer(Player player)
+    {
+        DetachFromPlayer();
+
+        _trackedPlayer = player;
+        if (_trackedPlayer == null)
+        {
+            return;
+        }
+
+        _trackedPlayer.ShotFired += OnPlayerShotFired;
+    }
+
+    private void DetachFromPlayer()
+    {
+        if (_trackedPlayer != null)
+        {
+            _trackedPlayer.ShotFired -= OnPlayerShotFired;
+            _trackedPlayer = null;
+        }
+    }
+
+    private void OnPlayerShotFired(Vector2 screenPosition)
+    {
+        if (_enableLightGunForceFeedback)
+        {
+            _lightGunPort?.SendNotation(_lightGunShotCommand);
+        }
+
+        PlayShotPulse();
     }
 
     private void PlayShotPulse()

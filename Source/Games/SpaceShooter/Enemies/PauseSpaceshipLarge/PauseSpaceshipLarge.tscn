@@ -1,0 +1,25 @@
+[gd_scene format=3 uid="uid://csgbro2ltnk33"]
+
+[ext_resource type="PackedScene" uid="uid://cf0q6ah03gihc" path="res://Source/Games/SpaceShooter/Enemies/Enemy.tscn" id="1_iievq"]
+[ext_resource type="Script" uid="uid://cf3h5klsvxx1x" path="res://Source/Games/SpaceShooter/Enemies/PauseSpaceshipLarge/PauseSpaceshipLarge.cs" id="2_465rt"]
+[ext_resource type="Texture2D" uid="uid://bou548qnke5ny" path="res://Assets/Textures/SpaceShooter/Enemies/Ship_1_B_Large.png" id="3_je674"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_bx28i"]
+radius = 279.40292
+
+[node name="PauseSpaceshipLarge" unique_id=828742235 instance=ExtResource("1_iievq")]
+script = ExtResource("2_465rt")
+_maxScale = 1.2
+_depthSpeed = 0.06
+_flightPattern = 3
+
+[node name="Sprite2D" parent="." index="0" unique_id=706178824]
+texture = ExtResource("3_je674")
+
+[node name="HealthComponent" parent="." index="1" unique_id=234405220]
+MaxHp = 600
+
+[node name="CollisionShape2D" parent="HitboxComponent" parent_id_path=PackedInt32Array(1387659574) index="0" unique_id=2022642430]
+shape = SubResource("CircleShape2D_bx28i")
+
+[editable path="HitboxComponent"]

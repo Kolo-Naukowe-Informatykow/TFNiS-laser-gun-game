@@ -1,0 +1,24 @@
+[gd_scene format=3 uid="uid://b4hhixponsx6o"]
+
+[ext_resource type="Script" uid="uid://d1c0j0r8pxpts" path="res://Source/UI/Components/PlayerHealthBar/PlayerHealthBar.cs" id="1_7yj26"]
+[ext_resource type="Theme" uid="uid://c0b4jxh0af4yt" path="res://Assets/Themes/SpaceShooter/SpaceShooterTheme.tres" id="2_ysbhp"]
+
+[node name="PlayerHealthBar" type="Control" unique_id=1790404366 node_paths=PackedStringArray("_healthBar")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_7yj26")
+_healthBar = NodePath("ProgressBar")
+
+[node name="ProgressBar" type="ProgressBar" parent="." unique_id=1686389954]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("2_ysbhp")
+value = 50.0

@@ -3,6 +3,10 @@
 [ext_resource type="Script" uid="uid://btf7emechpfwl" path="res://Source/Games/SpaceShooter/Screens/GameScreen/GameScreen.cs" id="1_5ju02"]
 [ext_resource type="Shader" uid="uid://youe7ku7aqrc" path="res://Source/Shaders/Space.gdshader" id="2_1psa7"]
 [ext_resource type="PackedScene" uid="uid://d4jksgdrpttwn" path="res://Source/Components/Crosshair/Crosshair.tscn" id="3_2pixf"]
+[ext_resource type="PackedScene" uid="uid://c24djpbpb1n8t" path="res://Source/Games/SpaceShooter/EnemySpawner/EnemySpawner.tscn" id="4_1hvuc"]
+[ext_resource type="PackedScene" uid="uid://dfao7kc65xkj" path="res://Source/Games/SpaceShooter/Player/Player.tscn" id="5_cavwu"]
+[ext_resource type="PackedScene" uid="uid://cio24yld6wtmd" path="res://Source/Games/SpaceShooter/UI/Overlays/GameOverlay/SpaceShooterGameOverlay.tscn" id="6_cavwu"]
+[ext_resource type="PackedScene" uid="uid://dpflb5x2qjkk" path="res://Source/Games/SpaceShooter/Managers/GameManager/SpaceShooterGameManager.tscn" id="7_4ewky"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_27jvt"]
 shader = ExtResource("2_1psa7")
@@ -12,8 +16,10 @@ shader_parameter/enable_black_holes = false
 shader_parameter/flight_speed = 6.0000000894072
 shader_parameter/star_threshold = 0.9
 
-[node name="SpaceShooter" type="Node" unique_id=1948598634]
+[node name="SpaceShooter" type="Node" unique_id=1948598634 node_paths=PackedStringArray("_enemySpawner", "_player")]
 script = ExtResource("1_5ju02")
+_enemySpawner = NodePath("EnemySpawner")
+_player = NodePath("Player")
 
 [node name="Crosshair" parent="." unique_id=1912713569 instance=ExtResource("3_2pixf")]
 
@@ -24,3 +30,12 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+
+[node name="EnemySpawner" parent="." unique_id=10016692 node_paths=PackedStringArray("_spawnParent") instance=ExtResource("4_1hvuc")]
+_spawnParent = NodePath("..")
+
+[node name="Player" parent="." unique_id=2106631054 instance=ExtResource("5_cavwu")]
+
+[node name="SpaceShooterGameOverlay" parent="." unique_id=878110085 instance=ExtResource("6_cavwu")]
+
+[node name="SpaceShooterGameManager" parent="." unique_id=1628530712 instance=ExtResource("7_4ewky")]

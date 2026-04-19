@@ -2,6 +2,24 @@
 
 [ext_resource type="PackedScene" uid="uid://cf0q6ah03gihc" path="res://Source/Games/SpaceShooter/Enemies/Enemy.tscn" id="1_q84gk"]
 [ext_resource type="Script" uid="uid://dkhhx7nvag5lo" path="res://Source/Games/SpaceShooter/Enemies/BasicSpaceship/BasicSpaceship.cs" id="2_ig00e"]
+[ext_resource type="Texture2D" uid="uid://6fft8v6wes7o" path="res://Assets/Textures/SpaceShooter/Enemies/Ship_2_D_Large.png" id="3_tikhp"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_ig00e"]
+radius = 286.21146
 
 [node name="BasicSpaceship" unique_id=166932931 instance=ExtResource("1_q84gk")]
 script = ExtResource("2_ig00e")
+_maxScale = 0.8
+_depthSpeed = 0.18
+
+[node name="Sprite2D" parent="." index="0" unique_id=706178824]
+rotation = 3.1415927
+texture = ExtResource("3_tikhp")
+
+[node name="HealthComponent" parent="." index="1" unique_id=234405220]
+MaxHp = 200
+
+[node name="CollisionShape2D" parent="HitboxComponent" parent_id_path=PackedInt32Array(1387659574) index="0" unique_id=2022642430]
+shape = SubResource("CircleShape2D_ig00e")
+
+[editable path="HitboxComponent"]

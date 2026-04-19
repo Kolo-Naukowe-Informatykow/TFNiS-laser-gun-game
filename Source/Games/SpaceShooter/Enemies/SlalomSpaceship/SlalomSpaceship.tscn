@@ -1,0 +1,24 @@
+[gd_scene format=3 uid="uid://dvjs1rpe1ro26"]
+
+[ext_resource type="PackedScene" uid="uid://cf0q6ah03gihc" path="res://Source/Games/SpaceShooter/Enemies/Enemy.tscn" id="1_4jw0v"]
+[ext_resource type="Script" uid="uid://7x2s563daxgj" path="res://Source/Games/SpaceShooter/Enemies/SlalomSpaceship/SlalomSpaceship.cs" id="2_i1grt"]
+[ext_resource type="Texture2D" uid="uid://28xplnfsbo3b" path="res://Assets/Textures/SpaceShooter/Enemies/Ship_2_A_Large.png" id="3_s0rk7"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_kr0c1"]
+radius = 299.54132
+
+[node name="SlalomSpaceship" unique_id=828742235 instance=ExtResource("1_4jw0v")]
+script = ExtResource("2_i1grt")
+_maxScale = 0.8
+_flightPattern = 1
+
+[node name="Sprite2D" parent="." index="0" unique_id=706178824]
+texture = ExtResource("3_s0rk7")
+
+[node name="HealthComponent" parent="." index="1" unique_id=234405220]
+MaxHp = 200
+
+[node name="CollisionShape2D" parent="HitboxComponent" parent_id_path=PackedInt32Array(1387659574) index="0" unique_id=2022642430]
+shape = SubResource("CircleShape2D_kr0c1")
+
+[editable path="HitboxComponent"]

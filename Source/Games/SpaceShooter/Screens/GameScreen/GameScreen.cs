@@ -5,5 +5,43 @@ namespace SpaceShooter.Screens
 {
     public partial class GameScreen : Node
     {
+        [Export] private EnemySpawner _enemySpawner;
+        [Export] private Player _player;
+        private SpaceShooterGameManager _gameManager;
+
+        public override void _Ready()
+        {
+            _gameManager = SpaceShooterGameManager.GetOrNull(this);
+
+            if (_gameManager != null)
+            {
+                _gameManager.ActivateSpaceShooter(_player);
+            }
+
+            if (_enemySpawner == null)
+            {
+                return;
+            }
+
+            _enemySpawner.EnemyEscaped += OnEnemyEscaped;
+        }
+
+        public override void _ExitTree()
+        {
+            if (_enemySpawner != null)
+            {
+                _enemySpawner.EnemyEscaped -= OnEnemyEscaped;
+            }
+
+            _gameManager?.DeactivateSpaceShooter(_player);
+        }
+
+        private void OnEnemyEscaped(int damageToPlayer)
+        {
+            if (_player != null)
+            {
+                _player.ReceiveDamage(damageToPlayer);
+            }
+        }
     }
 }
