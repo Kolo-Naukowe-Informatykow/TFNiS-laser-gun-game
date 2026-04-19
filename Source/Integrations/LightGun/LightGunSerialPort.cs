@@ -38,6 +38,12 @@ public sealed class LightGunSerialPort : IDisposable
 
         _nextReconnectAttemptUtc = DateTime.UtcNow + ReconnectCooldown;
 
+        if (_serialPort != null)
+        {
+            _serialPort.Dispose();
+            _serialPort = null;
+        }
+
         var matchingPorts = GetPortsForVid(_targetVid);
         foreach (var portName in matchingPorts)
         {
@@ -154,9 +160,17 @@ public sealed class LightGunSerialPort : IDisposable
 
     private static string[] GetPortsForVid(string vid)
     {
-        var connectedPorts = new HashSet<string>(SerialPort.GetPortNames(), StringComparer.OrdinalIgnoreCase);
-
         if (!OperatingSystem.IsWindows())
+        {
+            return [];
+        }
+
+        HashSet<string> connectedPorts;
+        try
+        {
+            connectedPorts = new HashSet<string>(SerialPort.GetPortNames(), StringComparer.OrdinalIgnoreCase);
+        }
+        catch (PlatformNotSupportedException)
         {
             return [];
         }
