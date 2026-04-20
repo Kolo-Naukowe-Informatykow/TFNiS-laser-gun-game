@@ -4,9 +4,9 @@ public partial class Crosshair : CanvasLayer
 {
     [Export] private bool _enableLightGunForceFeedback = true;
     [Export] private string _lightGunVid = "F143";
-    [Export] private int _lightGunBaudRate = 9600;
+    [Export] private int _lightGunBaudRate = 115200;
     [Export] private string _lightGunStartCommand = "S";
-    [Export] private string _lightGunShotCommand = "F\\x02\\x01";
+    [Export] private string _lightGunShotCommand = "F0x2x01";
     [Export] private string _lightGunExitCommand = "E";
 
     [Export] private TextureRect _crosshairTextureRect;
@@ -139,7 +139,7 @@ public partial class Crosshair : CanvasLayer
     {
         if (_enableLightGunForceFeedback)
         {
-            _lightGunPort?.SendNotation(_lightGunShotCommand);
+            _lightGunPort?.SendAscii(_lightGunShotCommand);
         }
 
         PlayShotPulse();
