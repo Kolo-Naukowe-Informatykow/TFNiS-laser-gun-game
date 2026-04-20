@@ -1,0 +1,72 @@
+[gd_scene format=3 uid="uid://dba4rsb2mmhb8"]
+
+[ext_resource type="Theme" uid="uid://c0b4jxh0af4yt" path="res://Assets/Themes/SpaceShooter/SpaceShooterTheme.tres" id="1_arpa1"]
+[ext_resource type="PackedScene" uid="uid://b4mm4o8tpdsqu" path="res://Source/UI/Components/GameSelectCard/GameSelectCard.tscn" id="2_o4xns"]
+[ext_resource type="Texture2D" uid="uid://dmiv5whg8p0ey" path="res://Assets/Textures/GamePreview/ppk7fdf.png" id="3_utjvf"]
+
+[node name="MainMenu" type="Control" unique_id=1100388702]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("1_arpa1")
+
+[node name="PanelContainer" type="PanelContainer" parent="." unique_id=332204650]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer" unique_id=1660037939]
+layout_mode = 2
+theme_override_constants/margin_left = 32
+theme_override_constants/margin_top = 32
+theme_override_constants/margin_right = 32
+theme_override_constants/margin_bottom = 32
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/MarginContainer" unique_id=148218600]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer" unique_id=122951439]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer" unique_id=1941443483]
+layout_mode = 2
+size_flags_vertical = 3
+size_flags_stretch_ratio = 3.0
+
+[node name="Label" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer2" unique_id=167341394]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 256
+text = "Laser Games"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="HBoxContainer3" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer" unique_id=681915204]
+layout_mode = 2
+size_flags_vertical = 3
+size_flags_stretch_ratio = 3.0
+
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer3" unique_id=1081422728]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="MarginContainer2" type="MarginContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer3" unique_id=1666995321]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="GameSelectCard" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer3/MarginContainer2" unique_id=1418073939 instance=ExtResource("2_o4xns")]
+layout_mode = 2
+_gameTitle = "Space Shooter"
+_gameIcon = ExtResource("3_utjvf")
+_sceneToLoad = "uid://cqjjgsnqeudtt"
+
+[node name="MarginContainer3" type="MarginContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer3" unique_id=554417012]
+layout_mode = 2
+size_flags_horizontal = 3
