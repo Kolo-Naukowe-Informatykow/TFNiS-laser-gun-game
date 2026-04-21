@@ -11,10 +11,10 @@
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_27jvt"]
 shader = ExtResource("2_1psa7")
 shader_parameter/ray_march_steps = 96
-shader_parameter/nebula_steps = 2
+shader_parameter/nebula_steps = 1
 shader_parameter/enable_black_holes = false
 shader_parameter/flight_speed = 6.0000000894072
-shader_parameter/star_threshold = 0.9
+shader_parameter/star_threshold = 0.92999999900407
 
 [node name="SpaceShooter" type="Node" unique_id=1948598634 node_paths=PackedStringArray("_enemySpawner", "_player")]
 script = ExtResource("1_5ju02")
