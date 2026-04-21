@@ -3,6 +3,7 @@
 [ext_resource type="Theme" uid="uid://c0b4jxh0af4yt" path="res://Assets/Themes/SpaceShooter/SpaceShooterTheme.tres" id="1_arpa1"]
 [ext_resource type="PackedScene" uid="uid://b4mm4o8tpdsqu" path="res://Source/UI/Components/GameSelectCard/GameSelectCard.tscn" id="2_o4xns"]
 [ext_resource type="Texture2D" uid="uid://dmiv5whg8p0ey" path="res://Assets/Textures/GamePreview/ppk7fdf.png" id="3_utjvf"]
+[ext_resource type="PackedScene" uid="uid://d4jksgdrpttwn" path="res://Source/Components/Crosshair/Crosshair.tscn" id="4_nt4mu"]
 
 [node name="MainMenu" type="Control" unique_id=1100388702]
 layout_mode = 3
@@ -70,3 +71,9 @@ _sceneToLoad = "uid://cqjjgsnqeudtt"
 [node name="MarginContainer3" type="MarginContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer3" unique_id=554417012]
 layout_mode = 2
 size_flags_horizontal = 3
+
+[node name="HBoxContainer4" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer" unique_id=468039066]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Crosshair" parent="." unique_id=1912713569 instance=ExtResource("4_nt4mu")]

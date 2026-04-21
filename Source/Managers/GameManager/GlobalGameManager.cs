@@ -27,8 +27,17 @@ public partial class GlobalGameManager : Node
 
         public override void _Ready()
         {
+            ProcessMode = ProcessModeEnum.Always;
             RuntimeSeed = _seed != 0 ? _seed : GenerateRandomSeed();
             _rngSequence = 1;
+        }
+
+        public override void _UnhandledInput(InputEvent @event)
+        {
+            if (@event.IsActionPressed("ExitGame"))
+            {
+                GetTree().Quit();
+            }
         }
 
         public bool IsCurrentGame(Games game)
