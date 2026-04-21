@@ -12,15 +12,10 @@ const float STAR_CORE_SIZE = 0.14;
 
 const float CLUSTER_SCALE = 0.02;
 
-const float BLACK_HOLE_CORE_RADIUS = 0.2;
-const float BLACK_HOLE_THRESHOLD = 0.9995;
-const float BLACK_HOLE_DISTORTION = 0.03;
-
 uniform int ray_march_steps : hint_range(32, 200, 1) = 96;
-uniform int nebula_steps : hint_range(1, 4, 1) = 2;
-uniform bool enable_black_holes = false;
-uniform float flight_speed : hint_range(0.0, 20.0, 0.1) = 8.0;
-uniform float star_threshold : hint_range(0.7, 0.99, 0.001) = 0.90;
+uniform int nebula_steps : hint_range(1, 4, 1) = 1;
+uniform float flight_speed : hint_range(0.0, 20.0, 0.1) = 6.0;
+uniform float star_threshold : hint_range(0.7, 0.99, 0.001) = 0.93;
 
 float nonzero_sign(float value) {
     return value < 0.0 ? -1.0 : 1.0;
@@ -93,10 +88,6 @@ bool has_star(ivec3 chunk) {
         && channel_noise(mod(CLUSTER_SCALE * (cxz + czy) + vec2(0.333, 0.777), 1.0)) > star_threshold;
 }
 
-bool has_black_hole(ivec3 chunk) {
-    return rand(0.0001 * vec2(float(chunk.x), float(chunk.y)) + 0.002 * vec2(float(chunk.y), float(chunk.z))) > BLACK_HOLE_THRESHOLD;
-}
-
 vec3 get_star_to_ray_vector(vec3 ray_base, vec3 ray_direction, vec3 star_position) {
     float r = dot(ray_direction, star_position - ray_base);
     vec3 point_on_ray = ray_base + r * ray_direction;
@@ -128,7 +119,7 @@ vec4 get_nebula_color(vec3 global_position, vec3 ray_direction) {
     const int max_steps = 4;
     int steps = clamp(nebula_steps, 1, max_steps);
     for (int i = 0; i < max_steps; i++) {
-        if (i > steps) {
+        if (i >= steps) {
             break;
         }
         vec3 noise_eval = global_position + ray_direction * ((1.0 - global_layer_progress + float(i)) * layer_distance / ray_z);
@@ -150,16 +141,12 @@ vec4 get_nebula_color(vec3 global_position, vec3 ray_direction) {
     return vec4(color, 1.0);
 }
 
-vec4 get_star_glow_color(float star_distance, float angle_value, float hue) {
+vec4 get_star_glow_color(float star_distance, float hue) {
     float progress = 1.0 - star_distance;
-    float star_shape = abs(sin(angle_value * 2.5));
-    star_shape *= star_shape;
-    star_shape *= star_shape;
-    star_shape *= star_shape;
-    return vec4(hsv2rgb(vec3(hue, 0.3, 1.0)), 0.4 * progress * progress * mix(star_shape, 1.0, progress));
+    return vec4(hsv2rgb(vec3(hue, 0.22, 1.0)), 0.34 * progress * progress);
 }
 
-vec3 get_star_color(vec3 star_surface_location, float seed, float view_distance) {
+vec3 get_star_color(float seed, float view_distance) {
     const float distance_far = 20.0;
     const float distance_near = 15.0;
 
@@ -169,10 +156,7 @@ vec3 get_star_color(vec3 star_surface_location, float seed, float view_distance)
 
     float fade_to_white = max(0.0, (view_distance - distance_near) / (distance_far - distance_near));
 
-    vec3 coordinate = vec3(acos(star_surface_location.y), atan(star_surface_location.x, star_surface_location.z), seed);
-    float progress = channel_noise(0.3 * coordinate.xy + seed * vec2(1.1));
-    progress *= progress;
-    progress *= progress;
+    float progress = rand(vec2(seed, seed * 7.37));
 
     return mix(mix(vec3(1.0, 0.98, 0.9), vec3(1.0, 0.627, 0.01), progress), vec3(1.0), fade_to_white);
 }
@@ -215,6 +199,11 @@ void fragment() {
         move(local_position, ray_direction, inv_abs_ray_direction, direction_bound);
         move_inside_box(local_position, chunk, direction_sign, direction_bound);
 
+        vec3 chunk_delta = vec3(chunk - start_chunk);
+        if (dot(chunk_delta, chunk_delta) > draw_distance_sq) {
+            break;
+        }
+
         if (has_star(chunk)) {
             vec3 star_position = get_star_position(chunk, 0.5 * STAR_SIZE);
             float current_distance = get_distance(chunk - start_chunk, local_start, star_position);
@@ -228,41 +217,15 @@ void fragment() {
 
                 float star_color_seed = (float(chunk.x) + 13.0 * float(chunk.y) + 7.0 * float(chunk.z)) * 0.00453;
                 if (distance_to_star < star_core_radius) {
-                    float root_term = max(star_core_radius_sq - distance_to_star * distance_to_star, 0.0);
-                    vec3 star_surface_vector = normalize(star_to_ray_vector + ray_direction * sqrt(root_term));
-
-                    frag_color = blend_colors(frag_color, vec4(get_star_color(star_surface_vector, star_color_seed, current_distance), star_max_brightness));
+                    frag_color = blend_colors(frag_color, vec4(get_star_color(star_color_seed, current_distance), star_max_brightness));
                     break;
                 }
 
                 float local_star_distance = ((distance_to_star / STAR_SIZE) - STAR_CORE_SIZE) / (1.0 - STAR_CORE_SIZE);
-                vec4 glow_color = get_star_glow_color(local_star_distance, atan(star_to_ray_vector.x, star_to_ray_vector.y), star_color_seed);
+                vec4 glow_color = get_star_glow_color(local_star_distance, star_color_seed);
                 glow_color.a *= star_max_brightness;
                 frag_color = blend_colors(frag_color, glow_color);
             }
-        } else if (enable_black_holes && has_black_hole(chunk)) {
-            const vec3 black_hole_position = vec3(0.5);
-            float current_distance = get_distance(chunk - start_chunk, local_start, black_hole_position);
-            float fadeout = min(1.0, (DRAW_DISTANCE - current_distance) / FADEOUT_DISTANCE);
-
-            vec3 core_to_ray_vector = get_star_to_ray_vector(local_position, ray_direction, black_hole_position);
-            float distance_to_core = length(core_to_ray_vector);
-            if (distance_to_core < BLACK_HOLE_CORE_RADIUS * 0.5) {
-                frag_color = blend_colors(frag_color, vec4(vec3(0.0), fadeout));
-                break;
-            }
-            if (distance_to_core < 0.5) {
-                float inv_distance_to_core = 1.0 / max(distance_to_core, 0.0001);
-                ray_direction = normalize(ray_direction - fadeout * (BLACK_HOLE_DISTORTION * inv_distance_to_core - BLACK_HOLE_DISTORTION / 0.5) * core_to_ray_vector * inv_distance_to_core);
-                inv_abs_ray_direction = 1.0 / max(abs(ray_direction), vec3(0.0001));
-                direction_sign = sign(ray_direction);
-                direction_bound = vec3(0.5) + 0.5 * direction_sign;
-            }
-        }
-
-        vec3 chunk_delta = vec3(chunk - start_chunk);
-        if (dot(chunk_delta, chunk_delta) > draw_distance_sq) {
-            break;
         }
     }
 

@@ -5,11 +5,13 @@ public partial class SpaceShooterGameManager : Node
 {
 	[Signal] public delegate void PlayerChangedEventHandler(Player player);
 	[Signal] public delegate void SpaceShooterActiveChangedEventHandler(bool isActive);
+	[Signal] public delegate void DefeatStateChangedEventHandler(bool isDefeated);
 
 	public static SpaceShooterGameManager Instance { get; private set; }
 
 	public Player Player { get; private set; }
 	public bool IsSpaceShooterActive { get; private set; }
+	public bool IsDefeated { get; private set; }
 
 	public override void _EnterTree()
 	{
@@ -62,6 +64,8 @@ public partial class SpaceShooterGameManager : Node
 			EmitSignal(SignalName.SpaceShooterActiveChanged, IsSpaceShooterActive);
 		}
 
+		SetDefeatState(false);
+
 		SetPlayer(player);
 	}
 
@@ -79,6 +83,7 @@ public partial class SpaceShooterGameManager : Node
 
 		IsSpaceShooterActive = false;
 		EmitSignal(SignalName.SpaceShooterActiveChanged, IsSpaceShooterActive);
+		SetDefeatState(false);
 	}
 
 	public void SetPlayer(Player player)
@@ -90,5 +95,21 @@ public partial class SpaceShooterGameManager : Node
 
 		Player = player;
 		EmitSignal(SignalName.PlayerChanged, Player);
+	}
+
+	public void EnterDefeatState()
+	{
+		SetDefeatState(true);
+	}
+
+	private void SetDefeatState(bool isDefeated)
+	{
+		if (IsDefeated == isDefeated)
+		{
+			return;
+		}
+
+		IsDefeated = isDefeated;
+		EmitSignal(SignalName.DefeatStateChanged, IsDefeated);
 	}
 }

@@ -9,11 +9,14 @@ public partial class Crosshair : CanvasLayer
     [Export] private string _lightGunShotCommand = "F0x2x01";
     [Export] private string _lightGunExitCommand = "E";
 
+    private Texture2D _cursorIdleTexture;
+    private Texture2D _cursorClickTexture;
     [Export] private TextureRect _crosshairTextureRect;
 
     [Export] private TextureRect _glowTextureRect;
 
     private Tween _pulseTween;
+    private Tween _cursorTween;
     private Vector2 _baseScale = Vector2.One;
     private Vector2 _glowBaseScale = Vector2.One;
     private Color _baseColor = Colors.White;
@@ -24,8 +27,11 @@ public partial class Crosshair : CanvasLayer
 
     public override void _Ready()
     {
-        Input.MouseMode = Input.MouseModeEnum.Hidden;
+        Input.MouseMode = Input.MouseModeEnum.Visible;
         ProcessMode = ProcessModeEnum.Always;
+
+        _cursorIdleTexture = ResourceLoader.Load<Texture2D>("res://Assets/Textures/Crosshair/56_cursor_idle.png");
+        _cursorClickTexture = ResourceLoader.Load<Texture2D>("res://Assets/Textures/Crosshair/56_cursor_click.png");
 
         if (_enableLightGunForceFeedback)
         {
@@ -33,16 +39,20 @@ public partial class Crosshair : CanvasLayer
             _lightGunPort.SendAscii(_lightGunStartCommand);
         }
 
+        ApplyCustomCursor(_cursorIdleTexture);
+
         CallDeferred(nameof(RefreshPivotOffsets));
 
         if (_crosshairTextureRect != null)
         {
+            _crosshairTextureRect.Visible = false;
             _baseScale = _crosshairTextureRect.Scale;
             _baseColor = _crosshairTextureRect.Modulate;
         }
 
         if (_glowTextureRect != null)
         {
+            _glowTextureRect.Visible = false;
             _glowBaseScale = _glowTextureRect.Scale;
             _glowBaseColor = _glowTextureRect.Modulate;
         }
@@ -64,33 +74,20 @@ public partial class Crosshair : CanvasLayer
 		}
     }
 
-    public override void _Process(double delta)
-    {
-        if (_crosshairTextureRect == null)
-        {
-            return;
-        }
-
-        var mousePosition = GetViewport().GetMousePosition();
-        _crosshairTextureRect.GlobalPosition = mousePosition - (_crosshairTextureRect.Size * 0.5f);
-
-        if (_glowTextureRect != null)
-        {
-            _glowTextureRect.GlobalPosition = mousePosition - (_glowTextureRect.Size * 0.5f);
-        }
-
-    }
-
     public override void _Input(InputEvent @event)
     {
         if (@event.IsActionPressed("Shoot"))
         {
+			PlayClickCursorAnimation();
 			_trackedPlayer?.RequestShot(GetViewport().GetMousePosition());
         }
     }
 
     public override void _ExitTree()
     {
+        _cursorTween?.Kill();
+        ApplyCustomCursor(null);
+
         if (_enableLightGunForceFeedback)
         {
             _lightGunPort?.SendAscii(_lightGunExitCommand);
@@ -143,6 +140,35 @@ public partial class Crosshair : CanvasLayer
         }
 
         PlayShotPulse();
+    }
+
+    private void PlayClickCursorAnimation()
+    {
+        if (_cursorClickTexture == null)
+        {
+            return;
+        }
+
+        _cursorTween?.Kill();
+        ApplyCustomCursor(_cursorClickTexture);
+
+        _cursorTween = CreateTween();
+        _cursorTween.TweenInterval(0.08f);
+        _cursorTween.TweenCallback(Callable.From(() => ApplyCustomCursor(_cursorIdleTexture)));
+    }
+
+    private void ApplyCustomCursor(Texture2D texture)
+    {
+        if (texture == null)
+        {
+            Input.SetCustomMouseCursor(null);
+            Input.SetCustomMouseCursor(null, Input.CursorShape.PointingHand);
+            return;
+        }
+
+        Vector2I hotspot = new Vector2I(texture.GetWidth() / 2, texture.GetHeight() / 2);
+        Input.SetCustomMouseCursor(texture, Input.CursorShape.Arrow, hotspot);
+        Input.SetCustomMouseCursor(texture, Input.CursorShape.PointingHand, hotspot);
     }
 
     private void PlayShotPulse()

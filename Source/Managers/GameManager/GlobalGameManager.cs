@@ -27,8 +27,40 @@ public partial class GlobalGameManager : Node
 
         public override void _Ready()
         {
+            ProcessMode = ProcessModeEnum.Always;
             RuntimeSeed = _seed != 0 ? _seed : GenerateRandomSeed();
             _rngSequence = 1;
+        }
+
+        public override void _UnhandledInput(InputEvent @event)
+        {
+            if (@event.IsActionPressed("ExitGame"))
+            {
+                GetTree().Quit();
+                return;
+            }
+
+            if (@event.IsActionPressed("FullscreenToggle"))
+            {
+                ToggleFullscreenMode();
+            }
+        }
+
+        private static void ToggleFullscreenMode()
+        {
+            DisplayServer.WindowMode currentMode = DisplayServer.WindowGetMode();
+            bool isFullscreen = currentMode == DisplayServer.WindowMode.Fullscreen
+                || currentMode == DisplayServer.WindowMode.ExclusiveFullscreen;
+
+            if (isFullscreen)
+            {
+                DisplayServer.WindowSetMode(DisplayServer.WindowMode.Windowed);
+                DisplayServer.WindowSetFlag(DisplayServer.WindowFlags.Borderless, false);
+                return;
+            }
+
+            DisplayServer.WindowSetFlag(DisplayServer.WindowFlags.Borderless, true);
+            DisplayServer.WindowSetMode(DisplayServer.WindowMode.Fullscreen);
         }
 
         public bool IsCurrentGame(Games game)

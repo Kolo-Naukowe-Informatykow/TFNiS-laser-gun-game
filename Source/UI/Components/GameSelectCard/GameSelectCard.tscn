@@ -1,0 +1,54 @@
+[gd_scene format=3 uid="uid://b4mm4o8tpdsqu"]
+
+[ext_resource type="Texture2D" uid="uid://bfxgcnqdickmj" path="res://icon.svg" id="1_627o8"]
+[ext_resource type="Script" uid="uid://vh71a3ix1y25" path="res://Source/UI/Components/GameSelectCard/GameSelectCard.cs" id="1_riys8"]
+
+[node name="GameSelectCard" type="Control" unique_id=1418073939 node_paths=PackedStringArray("_titleLabel", "_iconSprite", "_panelContainer")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_riys8")
+_titleLabel = NodePath("MarginContainer/PanelContainer/MarginContainer/VBoxContainer/Label")
+_iconSprite = NodePath("MarginContainer/PanelContainer/MarginContainer/VBoxContainer/TextureRect")
+_panelContainer = NodePath("MarginContainer/PanelContainer")
+
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=399037977]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="PanelContainer" type="PanelContainer" parent="MarginContainer" unique_id=1816063321]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/PanelContainer" unique_id=435517342]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/PanelContainer/MarginContainer" unique_id=1531411146]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MarginContainer/PanelContainer/MarginContainer/VBoxContainer" unique_id=2053187185]
+layout_mode = 2
+theme_override_font_sizes/font_size = 48
+text = "GAME NAME"
+horizontal_alignment = 1
+
+[node name="TextureRect" type="TextureRect" parent="MarginContainer/PanelContainer/MarginContainer/VBoxContainer" unique_id=772289493]
+layout_mode = 2
+size_flags_vertical = 3
+texture = ExtResource("1_627o8")
+expand_mode = 2
+stretch_mode = 5

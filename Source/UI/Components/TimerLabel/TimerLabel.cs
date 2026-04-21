@@ -5,18 +5,65 @@ public partial class TimerLabel : Label
 {
 	private double _elapsedTime;
 	private int _lastDisplayedSecond;
+	private bool _isCounting;
+	private SpaceShooterGameManager _gameManager;
 
 	public override void _Ready()
 	{
 		_elapsedTime = 0d;
 		_lastDisplayedSecond = -1;
+		_isCounting = true;
+
+		_gameManager = SpaceShooterGameManager.GetOrNull(this);
+		if (_gameManager != null)
+		{
+			_gameManager.DefeatStateChanged += OnDefeatStateChanged;
+			_gameManager.SpaceShooterActiveChanged += OnSpaceShooterActiveChanged;
+			_isCounting = _gameManager.IsSpaceShooterActive && !_gameManager.IsDefeated;
+		}
+
 		UpdateLabel();
+	}
+
+	public override void _ExitTree()
+	{
+		if (_gameManager != null)
+		{
+			_gameManager.DefeatStateChanged -= OnDefeatStateChanged;
+			_gameManager.SpaceShooterActiveChanged -= OnSpaceShooterActiveChanged;
+		}
 	}
 
 	public override void _Process(double delta)
 	{
+		if (!_isCounting)
+		{
+			return;
+		}
+
 		_elapsedTime += delta;
 		UpdateLabel();
+	}
+
+	private void OnDefeatStateChanged(bool isDefeated)
+	{
+		UpdateCountingState();
+	}
+
+	private void OnSpaceShooterActiveChanged(bool isActive)
+	{
+		UpdateCountingState();
+	}
+
+	private void UpdateCountingState()
+	{
+		if (_gameManager == null)
+		{
+			_isCounting = true;
+			return;
+		}
+
+		_isCounting = _gameManager.IsSpaceShooterActive && !_gameManager.IsDefeated;
 	}
 
 	private void UpdateLabel()
