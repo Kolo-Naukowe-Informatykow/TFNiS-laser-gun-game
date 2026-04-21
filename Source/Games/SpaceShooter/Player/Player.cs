@@ -17,10 +17,17 @@ public partial class Player : Node
 	private double _shotCooldownRemaining;
 	private bool _queuedShot;
 	private Vector2 _queuedShotPosition;
+	private SpaceShooterGameManager _gameManager;
 
 	public override void _Ready()
 	{
 		SetProcess(true);
+		_gameManager = SpaceShooterGameManager.GetOrNull(this);
+		if (_gameManager != null)
+		{
+			_gameManager.DefeatStateChanged += OnDefeatStateChanged;
+		}
+
 		_healthComponent ??= GetNodeOrNull<HealthComponent>("HealthComponent");
 
 		if (_healthComponent == null)
@@ -34,6 +41,11 @@ public partial class Player : Node
 
 	public override void _ExitTree()
 	{
+		if (_gameManager != null)
+		{
+			_gameManager.DefeatStateChanged -= OnDefeatStateChanged;
+		}
+
 		if (_healthComponent != null)
 		{
 			_healthComponent.Died -= OnDied;
@@ -66,6 +78,12 @@ public partial class Player : Node
 
 	public void RequestShot(Vector2 screenPosition)
 	{
+		if (_gameManager?.IsDefeated ?? false)
+		{
+			_queuedShot = false;
+			return;
+		}
+
 		_queuedShotPosition = screenPosition;
 
 		if (_shotCooldownRemaining > 0d)
@@ -87,6 +105,11 @@ public partial class Player : Node
 
 	private bool TryDamageEnemyAtScreenPosition(Vector2 screenPosition)
 	{
+		if (_gameManager?.IsDefeated ?? false)
+		{
+			return false;
+		}
+
 		Vector2 worldPosition = ScreenToWorldPosition(screenPosition);
 		Godot.Collections.Array<Godot.Collections.Dictionary> results = QueryHitboxesAtWorldPosition(worldPosition);
 
@@ -165,5 +188,13 @@ public partial class Player : Node
 	private void OnDied()
 	{
 		EmitSignal(SignalName.PlayerDied);
+	}
+
+	private void OnDefeatStateChanged(bool isDefeated)
+	{
+		if (isDefeated)
+		{
+			_queuedShot = false;
+		}
 	}
 }

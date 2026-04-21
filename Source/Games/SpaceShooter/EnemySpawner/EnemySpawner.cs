@@ -20,6 +20,7 @@ public partial class EnemySpawner : Node
     private readonly Dictionary<Enemy, PackedScene> _sceneByEnemy = new();
     private int _enemyNameCounter;
     private Timer _spawnTimer;
+    private bool _isSpawningEnabled = true;
 
     public override void _Ready()
     {
@@ -57,17 +58,48 @@ public partial class EnemySpawner : Node
 
     private void OnSpawnTimerTimeout()
     {
+        if (!_isSpawningEnabled)
+        {
+            return;
+        }
+
         SpawnEnemy();
         ScheduleNextSpawn();
     }
 
     private void ScheduleNextSpawn()
     {
+        if (!_isSpawningEnabled || _spawnTimer == null)
+        {
+            return;
+        }
+
         float minInterval = Mathf.Max(0.05f, Math.Min(_spawnIntervalMin, _spawnIntervalMax));
         float maxInterval = Mathf.Max(minInterval, Math.Max(_spawnIntervalMin, _spawnIntervalMax));
 
         _spawnTimer.WaitTime = _rng.RandfRange(minInterval, maxInterval);
         _spawnTimer.Start();
+    }
+
+    public void SetSpawningEnabled(bool isEnabled)
+    {
+        if (_isSpawningEnabled == isEnabled)
+        {
+            return;
+        }
+
+        _isSpawningEnabled = isEnabled;
+
+        if (!_isSpawningEnabled)
+        {
+            _spawnTimer?.Stop();
+            return;
+        }
+
+        if (_spawnTimer != null && _spawnTimer.IsStopped())
+        {
+            ScheduleNextSpawn();
+        }
     }
 
     private void SpawnEnemy()
