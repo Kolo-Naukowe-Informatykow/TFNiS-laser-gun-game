@@ -3,20 +3,31 @@ using System;
 
 public partial class DefeatOverlay : Control
 {
-	private Button _retryButton;
+	[Export] private Button _retryButton;
+	[Export] private Button _mainMenuButton;
+	[Export(PropertyHint.File, "*.tscn")] private string _mainMenuScenePath = "res://Source/Screens/MainMenu/MainMenu.tscn";
 
 	public override void _Ready()
 	{
 		Visible = false;
-		_retryButton = GetNodeOrNull<Button>("PanelContainer/MarginContainer/VBoxContainer/HBoxContainer3/MarginContainer/HBoxContainer/MarginContainer2/VBoxContainer/PanelContainer/Button");
 
 		if (_retryButton == null)
 		{
 			GD.PushWarning("DefeatOverlay: nie znaleziono przycisku restartu.");
-			return;
+		}
+		else
+		{
+			_retryButton.Pressed += OnRetryPressed;
 		}
 
-		_retryButton.Pressed += OnRetryPressed;
+		if (_mainMenuButton == null)
+		{
+			GD.PushWarning("DefeatOverlay: nie znaleziono przycisku Main Menu.");
+		}
+		else
+		{
+			_mainMenuButton.Pressed += OnMainMenuPressed;
+		}
 	}
 
 	public override void _ExitTree()
@@ -24,6 +35,11 @@ public partial class DefeatOverlay : Control
 		if (_retryButton != null)
 		{
 			_retryButton.Pressed -= OnRetryPressed;
+		}
+
+		if (_mainMenuButton != null)
+		{
+			_mainMenuButton.Pressed -= OnMainMenuPressed;
 		}
 	}
 
@@ -43,5 +59,22 @@ public partial class DefeatOverlay : Control
 		}
 
 		tree.ChangeSceneToFile(currentScenePath);
+	}
+
+	private void OnMainMenuPressed()
+	{
+		if (string.IsNullOrWhiteSpace(_mainMenuScenePath))
+		{
+			GD.PushWarning("DefeatOverlay: brak sciezki do Main Menu.");
+			return;
+		}
+
+		if (!ResourceLoader.Exists(_mainMenuScenePath))
+		{
+			GD.PushWarning($"DefeatOverlay: scena Main Menu nie istnieje: {_mainMenuScenePath}");
+			return;
+		}
+
+		GetTree()?.ChangeSceneToFile(_mainMenuScenePath);
 	}
 }

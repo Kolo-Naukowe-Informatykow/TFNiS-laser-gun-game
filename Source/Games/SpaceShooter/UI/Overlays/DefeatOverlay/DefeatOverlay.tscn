@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://b543qrcou3p1c" path="res://Source/Games/SpaceShooter/UI/Overlays/DefeatOverlay/DefeatOverlay.cs" id="1_0yme8"]
 [ext_resource type="Theme" uid="uid://c0b4jxh0af4yt" path="res://Assets/Themes/SpaceShooter/SpaceShooterTheme.tres" id="1_kek1g"]
 
-[node name="DefeatOverlay" type="Control" unique_id=1345128286]
+[node name="DefeatOverlay" type="Control" unique_id=1345128286 node_paths=PackedStringArray("_retryButton", "_mainMenuButton")]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -12,6 +12,9 @@ grow_horizontal = 2
 grow_vertical = 2
 theme = ExtResource("1_kek1g")
 script = ExtResource("1_0yme8")
+_retryButton = NodePath("PanelContainer/MarginContainer/VBoxContainer/HBoxContainer3/MarginContainer/HBoxContainer/MarginContainer2/VBoxContainer/PanelContainer/RetryButton")
+_mainMenuButton = NodePath("PanelContainer/MarginContainer/VBoxContainer/HBoxContainer3/MarginContainer/HBoxContainer/MarginContainer2/VBoxContainer/PanelContainer2/MainMenuButton")
+_mainMenuScenePath = "uid://dba4rsb2mmhb8"
 
 [node name="PanelContainer" type="PanelContainer" parent="." unique_id=821548418]
 layout_mode = 1
@@ -83,7 +86,7 @@ size_flags_vertical = 3
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="Button" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer3/MarginContainer/HBoxContainer/MarginContainer2/VBoxContainer/PanelContainer" unique_id=481369191]
+[node name="RetryButton" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer3/MarginContainer/HBoxContainer/MarginContainer2/VBoxContainer/PanelContainer" unique_id=481369191]
 layout_mode = 2
 theme_override_font_sizes/font_size = 48
 text = "SPRÓBUJ PONOWNIE"
@@ -92,6 +95,19 @@ text = "SPRÓBUJ PONOWNIE"
 layout_mode = 2
 size_flags_vertical = 3
 
+[node name="PanelContainer2" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer3/MarginContainer/HBoxContainer/MarginContainer2/VBoxContainer" unique_id=783662731]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="MainMenuButton" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer3/MarginContainer/HBoxContainer/MarginContainer2/VBoxContainer/PanelContainer2" unique_id=645116640]
+layout_mode = 2
+theme_override_font_sizes/font_size = 48
+text = "MENU GŁÓWNE"
+
 [node name="MarginContainer3" type="MarginContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer3/MarginContainer/HBoxContainer" unique_id=125330454]
 layout_mode = 2
 size_flags_horizontal = 3
+
+[node name="HBoxContainer4" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer" unique_id=449147524]
+layout_mode = 2
+size_flags_vertical = 3
