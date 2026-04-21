@@ -37,7 +37,30 @@ public partial class GlobalGameManager : Node
             if (@event.IsActionPressed("ExitGame"))
             {
                 GetTree().Quit();
+                return;
             }
+
+            if (@event.IsActionPressed("FullscreenToggle"))
+            {
+                ToggleFullscreenMode();
+            }
+        }
+
+        private static void ToggleFullscreenMode()
+        {
+            DisplayServer.WindowMode currentMode = DisplayServer.WindowGetMode();
+            bool isFullscreen = currentMode == DisplayServer.WindowMode.Fullscreen
+                || currentMode == DisplayServer.WindowMode.ExclusiveFullscreen;
+
+            if (isFullscreen)
+            {
+                DisplayServer.WindowSetMode(DisplayServer.WindowMode.Windowed);
+                DisplayServer.WindowSetFlag(DisplayServer.WindowFlags.Borderless, false);
+                return;
+            }
+
+            DisplayServer.WindowSetFlag(DisplayServer.WindowFlags.Borderless, true);
+            DisplayServer.WindowSetMode(DisplayServer.WindowMode.Fullscreen);
         }
 
         public bool IsCurrentGame(Games game)

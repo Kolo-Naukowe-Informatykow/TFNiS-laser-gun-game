@@ -16,7 +16,15 @@ public partial class HealthComponent : Node
 	public override void _Ready()
 	{
 		MaxHp = Math.Max(1, MaxHp);
+		ResetHealth();
+	}
+
+	public void ResetHealth()
+	{
+		MaxHp = Math.Max(1, MaxHp);
 		CurrentHp = MaxHp;
+		_isDead = false;
+		EmitSignal(SignalName.HealthChanged, CurrentHp, MaxHp);
 	}
 
 	public void ReceiveDamage(int damage)

@@ -1,5 +1,6 @@
 using Godot;
 using System;
+using System.Collections.Generic;
 
 namespace SpaceShooter.Enemies
 {
@@ -28,6 +29,7 @@ namespace SpaceShooter.Enemies
 	public partial class Enemy : Node2D
 	{
 		[Signal] public delegate void EscapedEventHandler(int damageToPlayer);
+		[Signal] public delegate void RecycleRequestedEventHandler(Enemy enemy, int damageToPlayer);
 
 		private readonly RandomNumberGenerator _rng = new();
 		private Tween _damageFlashTween;
@@ -38,6 +40,7 @@ namespace SpaceShooter.Enemies
 		private Color _baseSpriteColor = Colors.White;
 		private Vector2 _baseSpriteLocalPosition = Vector2.Zero;
 		private bool _isDying;
+		private bool _isActive;
 
 		[Export] private float _minScale = 0.06f;
 		[Export] private float _maxScale = 1.0f;
@@ -108,6 +111,11 @@ namespace SpaceShooter.Enemies
 
 		public override void _Process(double delta)
 		{
+			if (!_isActive)
+			{
+				return;
+			}
+
 			if (_depthProgress >= 1f)
 			{
 				return;
@@ -131,13 +139,28 @@ namespace SpaceShooter.Enemies
 
 			if (_depthProgress >= 1f)
 			{
-				EmitSignal(SignalName.Escaped, _damageOnEscape);
-				QueueFree();
+				RequestRecycle(_damageOnEscape);
 			}
 		}
 
 		public void ConfigureSpawn(float startY, EnemySpawnOrigin spawnOrigin, EnemyTargetLane targetLane)
 		{
+			_isActive = true;
+			_isDying = false;
+			Visible = true;
+			SetProcess(true);
+			SetHitboxesEnabled(true);
+			_damageFlashTween?.Kill();
+			_hitShakeTween?.Kill();
+
+			if (_sprite != null)
+			{
+				_sprite.Modulate = _baseSpriteColor;
+				_sprite.Position = _baseSpriteLocalPosition;
+			}
+
+			_healthComponent?.ResetHealth();
+
 			_depthProgress = 0f;
 			_pauseConsumed = false;
 			_pauseTimeLeft = 0f;
@@ -156,14 +179,31 @@ namespace SpaceShooter.Enemies
 
 		public void HandleDeath()
 		{
-			if (_isDying)
+			if (_isDying || !_isActive)
 			{
 				return;
 			}
 
 			_isDying = true;
 			_particlesComponent?.EmitAt(GlobalPosition, GetParent());
-			QueueFree();
+			RequestRecycle(0);
+		}
+
+		public void DeactivateForPool()
+		{
+			_isActive = false;
+			_isDying = false;
+			SetProcess(false);
+			Visible = false;
+			SetHitboxesEnabled(false);
+			_damageFlashTween?.Kill();
+			_hitShakeTween?.Kill();
+
+			if (_sprite != null)
+			{
+				_sprite.Modulate = _baseSpriteColor;
+				_sprite.Position = _baseSpriteLocalPosition;
+			}
 		}
 
 		private void OnHealthChanged(int currentHp, int maxHp)
@@ -353,6 +393,33 @@ namespace SpaceShooter.Enemies
 					return rightX;
 				default:
 					return centerX;
+			}
+		}
+
+		private void RequestRecycle(int damageToPlayer)
+		{
+			if (!_isActive)
+			{
+				return;
+			}
+
+			if (damageToPlayer > 0)
+			{
+				EmitSignal(SignalName.Escaped, damageToPlayer);
+			}
+
+			EmitSignal(SignalName.RecycleRequested, this, damageToPlayer);
+		}
+
+		private void SetHitboxesEnabled(bool enabled)
+		{
+			foreach (Node child in GetChildren())
+			{
+				if (child is Area2D area)
+				{
+					area.Monitoring = enabled;
+					area.Monitorable = enabled;
+				}
 			}
 		}
 	}

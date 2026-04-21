@@ -1,5 +1,6 @@
 using Godot;
 using System;
+using System.Collections.Generic;
 
 public partial class ParticlesComponent : Node
 {
@@ -17,11 +18,26 @@ public partial class ParticlesComponent : Node
 	[Export] private bool _useGeneratedTexture = true;
 	[Export] private int _generatedTextureSize = 40;
 	[Export] private Texture2D _particleTexture;
+	[Export] private int _prewarmCount = 2;
 
 	private Texture2D _cachedGeneratedTexture;
 	private int _cachedTextureSize;
 	private Color _cachedTextureColor;
 	private GradientTexture1D _cachedFadeRamp;
+	private ParticleProcessMaterial _cachedProcessMaterial;
+	private readonly Queue<GpuParticles2D> _particlePool = new();
+	private Node _poolParent;
+	private int _particleNameCounter;
+
+	public override void _Ready()
+	{
+		_poolParent = GetTree()?.CurrentScene ?? GetParent();
+
+		for (int i = 0; i < Math.Max(0, _prewarmCount); i++)
+		{
+			ReturnToPool(CreateParticleNode());
+		}
+	}
 
 	public void EmitAtOwner()
 	{
@@ -42,30 +58,19 @@ public partial class ParticlesComponent : Node
 			return;
 		}
 
-		GpuParticles2D particles = new GpuParticles2D();
+		GpuParticles2D particles = AcquireParticle(targetParent);
 		particles.GlobalPosition = worldPosition;
 		particles.Amount = Math.Max(1, _amount);
 		particles.OneShot = true;
 		particles.Emitting = false;
 		particles.Explosiveness = 1.0f;
 		particles.LocalCoords = false;
+		particles.Visible = true;
 		particles.Modulate = Colors.White;
 		particles.Texture = GetOrCreateTexture();
-
-		ParticleProcessMaterial material = new ParticleProcessMaterial();
-		material.EmissionShape = ParticleProcessMaterial.EmissionShapeEnum.Sphere;
-		material.Spread = Mathf.Clamp(_spread, 0f, 360f);
-		material.InitialVelocityMin = Mathf.Max(0f, _initialVelocity * 0.6f);
-		material.InitialVelocityMax = Mathf.Max(0f, _initialVelocity);
-		material.ScaleMin = Mathf.Max(0.05f, _scale * 0.6f);
-		material.ScaleMax = Mathf.Max(0.05f, _scale);
-		material.Gravity = new Vector3(_gravity.X, _gravity.Y, 0f);
-		material.Set("lifetime_randomness", Mathf.Clamp(_lifetimeRandomness, 0f, 1f));
-		material.Set("color_ramp", GetOrCreateFadeRamp());
-		particles.ProcessMaterial = material;
+		particles.ProcessMaterial = GetOrCreateProcessMaterial();
 
 		particles.Lifetime = Mathf.Max(0.05f, _lifetime);
-		targetParent.AddChild(particles);
 
 		particles.Emitting = true;
 
@@ -74,14 +79,72 @@ public partial class ParticlesComponent : Node
 		fadeTween.TweenInterval(Mathf.Max(0.01f, particles.Lifetime - fadeDuration));
 		fadeTween.TweenProperty(particles, "modulate", new Color(1f, 1f, 1f, 0f), fadeDuration);
 
-		SceneTreeTimer cleanupTimer = GetTree().CreateTimer(particles.Lifetime + fadeDuration + 0.25f);
-		cleanupTimer.Timeout += () =>
+		Timer cleanupTimer = particles.GetNode<Timer>("ReturnTimer");
+		cleanupTimer.Stop();
+		cleanupTimer.WaitTime = particles.Lifetime + fadeDuration + 0.25f;
+		cleanupTimer.Start();
+	}
+
+	private GpuParticles2D AcquireParticle(Node targetParent)
+	{
+		GpuParticles2D particles = _particlePool.Count > 0 ? _particlePool.Dequeue() : CreateParticleNode();
+
+		if (particles.GetParent() != targetParent)
 		{
-			if (GodotObject.IsInstanceValid(particles))
-			{
-				particles.QueueFree();
-			}
+			particles.Reparent(targetParent);
+		}
+
+		return particles;
+	}
+
+	private void ReturnToPool(GpuParticles2D particles)
+	{
+		if (!GodotObject.IsInstanceValid(particles))
+		{
+			return;
+		}
+
+		Timer cleanupTimer = particles.GetNodeOrNull<Timer>("ReturnTimer");
+		cleanupTimer?.Stop();
+		particles.Emitting = false;
+		particles.Visible = false;
+		particles.Modulate = Colors.White;
+
+		Node targetPoolParent = _poolParent ?? GetTree()?.CurrentScene ?? GetParent();
+		if (targetPoolParent != null && particles.GetParent() != targetPoolParent)
+		{
+			particles.Reparent(targetPoolParent);
+		}
+
+		_particlePool.Enqueue(particles);
+	}
+
+	private GpuParticles2D CreateParticleNode()
+	{
+		_particleNameCounter++;
+		GpuParticles2D particles = new GpuParticles2D
+		{
+			Name = $"PooledGpuParticles2D_{_particleNameCounter}",
+			OneShot = true,
+			Emitting = false,
+			Explosiveness = 1.0f,
+			LocalCoords = false,
+			Visible = false
 		};
+
+		Timer returnTimer = new Timer
+		{
+			Name = "ReturnTimer",
+			OneShot = true,
+			Autostart = false
+		};
+
+		particles.AddChild(returnTimer);
+		returnTimer.Timeout += () => ReturnToPool(particles);
+
+		Node targetPoolParent = _poolParent ?? GetTree()?.CurrentScene ?? GetParent();
+		targetPoolParent?.AddChild(particles);
+		return particles;
 	}
 
 	private Texture2D GetOrCreateTexture()
@@ -150,5 +213,25 @@ public partial class ParticlesComponent : Node
 		_cachedFadeRamp = new GradientTexture1D();
 		_cachedFadeRamp.Gradient = gradient;
 		return _cachedFadeRamp;
+	}
+
+	private ParticleProcessMaterial GetOrCreateProcessMaterial()
+	{
+		if (_cachedProcessMaterial == null)
+		{
+			_cachedProcessMaterial = new ParticleProcessMaterial();
+		}
+
+		_cachedProcessMaterial.EmissionShape = ParticleProcessMaterial.EmissionShapeEnum.Sphere;
+		_cachedProcessMaterial.Spread = Mathf.Clamp(_spread, 0f, 360f);
+		_cachedProcessMaterial.InitialVelocityMin = Mathf.Max(0f, _initialVelocity * 0.6f);
+		_cachedProcessMaterial.InitialVelocityMax = Mathf.Max(0f, _initialVelocity);
+		_cachedProcessMaterial.ScaleMin = Mathf.Max(0.05f, _scale * 0.6f);
+		_cachedProcessMaterial.ScaleMax = Mathf.Max(0.05f, _scale);
+		_cachedProcessMaterial.Gravity = new Vector3(_gravity.X, _gravity.Y, 0f);
+		_cachedProcessMaterial.Set("lifetime_randomness", Mathf.Clamp(_lifetimeRandomness, 0f, 1f));
+		_cachedProcessMaterial.Set("color_ramp", GetOrCreateFadeRamp());
+
+		return _cachedProcessMaterial;
 	}
 }
