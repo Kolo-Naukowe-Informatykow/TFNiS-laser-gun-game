@@ -47,12 +47,23 @@ public partial class TimerLabel : Label
 
 	private void OnDefeatStateChanged(bool isDefeated)
 	{
-		_isCounting = !isDefeated;
+		UpdateCountingState();
 	}
 
 	private void OnSpaceShooterActiveChanged(bool isActive)
 	{
-		_isCounting = isActive && (_gameManager == null || !_gameManager.IsDefeated);
+		UpdateCountingState();
+	}
+
+	private void UpdateCountingState()
+	{
+		if (_gameManager == null)
+		{
+			_isCounting = true;
+			return;
+		}
+
+		_isCounting = _gameManager.IsSpaceShooterActive && !_gameManager.IsDefeated;
 	}
 
 	private void UpdateLabel()
