@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://dmbdbd5g4t2"
+path="res://.godot/imported/space shooter sfx - fire 3.ogg-0ae73f52f5d397f0c78f4c9348daf04e.oggvorbisstr"
+
+[deps]
+
+source_file="res://Assets/Sounds/Player/space shooter sfx - fire 3.ogg"
+dest_files=["res://.godot/imported/space shooter sfx - fire 3.ogg-0ae73f52f5d397f0c78f4c9348daf04e.oggvorbisstr"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

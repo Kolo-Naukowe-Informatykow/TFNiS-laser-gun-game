@@ -2,9 +2,32 @@
 
 [ext_resource type="Script" uid="uid://c4vwgbxsyn6ic" path="res://Source/Games/SpaceShooter/Player/Player.cs" id="1_8018l"]
 [ext_resource type="PackedScene" uid="uid://byych2c5s1bn3" path="res://Source/Components/HealthComponent/HealthComponent.tscn" id="2_onf8u"]
+[ext_resource type="AudioStream" uid="uid://dt3te2uo07j68" path="res://Assets/Sounds/Player/space shooter sfx - fire 2.ogg" id="3_ty8ue"]
+[ext_resource type="AudioStream" uid="uid://dmbdbd5g4t2" path="res://Assets/Sounds/Player/space shooter sfx - fire 3.ogg" id="4_f4ts5"]
+[ext_resource type="AudioStream" uid="uid://csoxgvnwlbfxn" path="res://Assets/Sounds/Player/space shooter sfx - fire.ogg" id="5_islyg"]
+[ext_resource type="AudioStream" uid="uid://deux3jvcds2b7" path="res://Assets/Sounds/Player/space shooter sfx - player hurt.ogg" id="6_f4ts5"]
 
-[node name="Player" type="Node" unique_id=2106631054 node_paths=PackedStringArray("_healthComponent")]
+[sub_resource type="AudioStreamRandomizer" id="AudioStreamRandomizer_rfhco"]
+random_pitch = 1.0116194
+streams_count = 3
+stream_0/stream = ExtResource("5_islyg")
+stream_1/stream = ExtResource("3_ty8ue")
+stream_2/stream = ExtResource("4_f4ts5")
+
+[node name="Player" type="Node" unique_id=2106631054 node_paths=PackedStringArray("_shotSfx", "_hurtSfx", "_healthComponent")]
 script = ExtResource("1_8018l")
+_shotSfx = NodePath("ShotSFX")
+_hurtSfx = NodePath("HurtSFX")
 _healthComponent = NodePath("HealthComponent")
 
 [node name="HealthComponent" parent="." unique_id=234405220 instance=ExtResource("2_onf8u")]
+
+[node name="ShotSFX" type="AudioStreamPlayer" parent="." unique_id=2004710858]
+stream = SubResource("AudioStreamRandomizer_rfhco")
+volume_db = -9.299
+bus = &"Shot"
+
+[node name="HurtSFX" type="AudioStreamPlayer" parent="." unique_id=312052735]
+stream = ExtResource("6_f4ts5")
+volume_db = -15.716
+bus = &"Feedback"

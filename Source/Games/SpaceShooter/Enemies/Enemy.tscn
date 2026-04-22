@@ -5,14 +5,18 @@
 [ext_resource type="PackedScene" uid="uid://dv6mipm7020jl" path="res://Source/Components/HitboxComponent/HitboxComponent.tscn" id="3_6ji3l"]
 [ext_resource type="Texture2D" uid="uid://bfxgcnqdickmj" path="res://icon.svg" id="4_6ji3l"]
 [ext_resource type="PackedScene" uid="uid://1mxe5adtkto4" path="res://Source/Components/ParticlesComponent/ParticlesComponent.tscn" id="5_1fskx"]
+[ext_resource type="AudioStream" uid="uid://ho8cj33c1y7h" path="res://Assets/Sounds/Enemy/space shooter sfx - hit.ogg" id="6_gemqi"]
+[ext_resource type="AudioStream" uid="uid://g8uwjxjwiwh5" path="res://Assets/Sounds/Enemy/space shooter sfx - death.ogg" id="7_gemqi"]
 
 [sub_resource type="Curve" id="Curve_1fskx"]
 _data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.63666666, 0.6615702), 0.0, 0.0, 0, 0, Vector2(1, 0.82809913), 0.0, 0.0, 0, 0]
 point_count = 3
 
-[node name="Enemy" type="Node2D" unique_id=828742235 node_paths=PackedStringArray("_particlesComponent")]
+[node name="Enemy" type="Node2D" unique_id=828742235 node_paths=PackedStringArray("_particlesComponent", "_hitSfx", "_deathSfx")]
 script = ExtResource("1_5nupk")
 _particlesComponent = NodePath("ParticlesComponent")
+_hitSfx = NodePath("HitSfx")
+_deathSfx = NodePath("DeathSfx")
 _scaleCurve = SubResource("Curve_1fskx")
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=706178824]
@@ -25,5 +29,14 @@ texture = ExtResource("4_6ji3l")
 HealthComponent = NodePath("../HealthComponent")
 
 [node name="ParticlesComponent" parent="." unique_id=1551839413 instance=ExtResource("5_1fskx")]
+
+[node name="HitSfx" type="AudioStreamPlayer2D" parent="." unique_id=935498102]
+stream = ExtResource("6_gemqi")
+volume_db = 3.698
+bus = &"SFX"
+
+[node name="DeathSfx" type="AudioStreamPlayer2D" parent="." unique_id=380855447]
+stream = ExtResource("7_gemqi")
+bus = &"SFX"
 
 [editable path="HitboxComponent"]

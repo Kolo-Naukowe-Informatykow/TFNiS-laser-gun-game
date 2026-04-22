@@ -7,12 +7,12 @@
 [ext_resource type="PackedScene" uid="uid://dfao7kc65xkj" path="res://Source/Games/SpaceShooter/Player/Player.tscn" id="5_cavwu"]
 [ext_resource type="PackedScene" uid="uid://cio24yld6wtmd" path="res://Source/Games/SpaceShooter/UI/Overlays/GameOverlay/SpaceShooterGameOverlay.tscn" id="6_cavwu"]
 [ext_resource type="PackedScene" uid="uid://dpflb5x2qjkk" path="res://Source/Games/SpaceShooter/Managers/GameManager/SpaceShooterGameManager.tscn" id="7_4ewky"]
+[ext_resource type="AudioStream" uid="uid://dcad40573fbd6" path="res://Assets/Sounds/Music/music.ogg" id="8_gvhu8"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_27jvt"]
 shader = ExtResource("2_1psa7")
 shader_parameter/ray_march_steps = 96
 shader_parameter/nebula_steps = 1
-shader_parameter/enable_black_holes = false
 shader_parameter/flight_speed = 6.0000000894072
 shader_parameter/star_threshold = 0.92999999900407
 
@@ -39,3 +39,8 @@ _spawnParent = NodePath("..")
 [node name="SpaceShooterGameOverlay" parent="." unique_id=878110085 instance=ExtResource("6_cavwu")]
 
 [node name="SpaceShooterGameManager" parent="." unique_id=1628530712 instance=ExtResource("7_4ewky")]
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="." unique_id=737381002]
+stream = ExtResource("8_gvhu8")
+autoplay = true
+bus = &"Music"

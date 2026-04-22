@@ -3,198 +3,205 @@ using System;
 
 public partial class Player : Node
 {
-	[Signal] public delegate void ShotFiredEventHandler(Vector2 screenPosition);
-	[Signal] public delegate void PlayerDiedEventHandler();
+    [Signal] public delegate void ShotFiredEventHandler(Vector2 screenPosition);
+    [Signal] public delegate void PlayerDiedEventHandler();
 
-	[Export] public int ShotDamage = 100;
-	[Export] private float _shotAssistRadius = 20f;
+    [Export] public int ShotDamage = 100;
+    [Export] private float _shotAssistRadius = 20f;
 
-	[Export] private HealthComponent _healthComponent;
-	[Export] private float _shotCooldown = 0.18f;
+    [Export] private AudioStreamPlayer _shotSfx;
+    [Export] private AudioStreamPlayer _hurtSfx;
+    [Export] private HealthComponent _healthComponent;
+    [Export] private float _shotCooldown = 0.18f;
 
-	public HealthComponent HealthComponent => _healthComponent;
+    public HealthComponent HealthComponent => _healthComponent;
 
-	private double _shotCooldownRemaining;
-	private bool _queuedShot;
-	private Vector2 _queuedShotPosition;
-	private SpaceShooterGameManager _gameManager;
+    private double _shotCooldownRemaining;
+    private bool _queuedShot;
+    private Vector2 _queuedShotPosition;
+    private SpaceShooterGameManager _gameManager;
 
-	public override void _Ready()
-	{
-		SetProcess(true);
-		_gameManager = SpaceShooterGameManager.GetOrNull(this);
-		if (_gameManager != null)
-		{
-			_gameManager.DefeatStateChanged += OnDefeatStateChanged;
-		}
+    public override void _Ready()
+    {
+        SetProcess(true);
+        _gameManager = SpaceShooterGameManager.GetOrNull(this);
+        if (_gameManager != null)
+        {
+            _gameManager.DefeatStateChanged += OnDefeatStateChanged;
+        }
 
-		_healthComponent ??= GetNodeOrNull<HealthComponent>("HealthComponent");
+        _healthComponent ??= GetNodeOrNull<HealthComponent>("HealthComponent");
 
-		if (_healthComponent == null)
-		{
-			GD.PushWarning("Player: brak HealthComponent.");
-			return;
-		}
+        if (_healthComponent == null)
+        {
+            GD.PushWarning("Player: brak HealthComponent.");
+            return;
+        }
 
-		_healthComponent.Died += OnDied;
-	}
+        _healthComponent.Died += OnDied;
+    }
 
-	public override void _ExitTree()
-	{
-		if (_gameManager != null)
-		{
-			_gameManager.DefeatStateChanged -= OnDefeatStateChanged;
-		}
+    public override void _ExitTree()
+    {
+        if (_gameManager != null)
+        {
+            _gameManager.DefeatStateChanged -= OnDefeatStateChanged;
+        }
 
-		if (_healthComponent != null)
-		{
-			_healthComponent.Died -= OnDied;
-		}
-	}
+        if (_healthComponent != null)
+        {
+            _healthComponent.Died -= OnDied;
+        }
+    }
 
-	public override void _Process(double delta)
-	{
-		if (_shotCooldownRemaining > 0d)
-		{
-			_shotCooldownRemaining = Math.Max(0d, _shotCooldownRemaining - delta);
-		}
+    public override void _Process(double delta)
+    {
+        if (_shotCooldownRemaining > 0d)
+        {
+            _shotCooldownRemaining = Math.Max(0d, _shotCooldownRemaining - delta);
+        }
 
-		if (_queuedShot && _shotCooldownRemaining <= 0d)
-		{
-			_queuedShot = false;
-			ExecuteShot(_queuedShotPosition);
-		}
-	}
+        if (_queuedShot && _shotCooldownRemaining <= 0d)
+        {
+            _queuedShot = false;
+            ExecuteShot(_queuedShotPosition);
+        }
+    }
 
-	public void ReceiveDamage(int damage)
-	{
-		_healthComponent?.ReceiveDamage(damage);
-	}
+    public void ReceiveDamage(int damage)
+    {
+        _healthComponent?.ReceiveDamage(damage);
 
-	public int GetCurrentHp()
-	{
-		return _healthComponent?.CurrentHp ?? 0;
-	}
+        // This is probably not the right place, but i can't find a better one right now
+        _hurtSfx?.Play();
+    }
 
-	public void RequestShot(Vector2 screenPosition)
-	{
-		if (_gameManager?.IsDefeated ?? false)
-		{
-			_queuedShot = false;
-			return;
-		}
+    public int GetCurrentHp()
+    {
+        return _healthComponent?.CurrentHp ?? 0;
+    }
 
-		_queuedShotPosition = screenPosition;
+    public void RequestShot(Vector2 screenPosition)
+    {
+        if (_gameManager?.IsDefeated ?? false)
+        {
+            _queuedShot = false;
+            return;
+        }
 
-		if (_shotCooldownRemaining > 0d)
-		{
-			_queuedShot = true;
-			return;
-		}
+        _queuedShotPosition = screenPosition;
 
-		ExecuteShot(screenPosition);
-	}
+        if (_shotCooldownRemaining > 0d)
+        {
+            _queuedShot = true;
+            return;
+        }
 
-	private void ExecuteShot(Vector2 screenPosition)
-	{
-		_shotCooldownRemaining = Mathf.Max(0.01f, _shotCooldown);
-		TryDamageEnemyAtScreenPosition(screenPosition);
+        ExecuteShot(screenPosition);
+    }
 
-		EmitSignal(SignalName.ShotFired, screenPosition);
-	}
+    private void ExecuteShot(Vector2 screenPosition)
+    {
+        _shotCooldownRemaining = Mathf.Max(0.01f, _shotCooldown);
+        TryDamageEnemyAtScreenPosition(screenPosition);
 
-	private bool TryDamageEnemyAtScreenPosition(Vector2 screenPosition)
-	{
-		if (_gameManager?.IsDefeated ?? false)
-		{
-			return false;
-		}
+        EmitSignal(SignalName.ShotFired, screenPosition);
 
-		Vector2 worldPosition = ScreenToWorldPosition(screenPosition);
-		Godot.Collections.Array<Godot.Collections.Dictionary> results = QueryHitboxesAtWorldPosition(worldPosition);
+        _shotSfx?.Play();
+    }
 
-		foreach (Godot.Collections.Dictionary result in results)
-		{
-			GodotObject collider = ExtractCollider(result);
-			if (collider is not HitboxComponent hitbox)
-			{
-				continue;
-			}
+    private bool TryDamageEnemyAtScreenPosition(Vector2 screenPosition)
+    {
+        if (_gameManager?.IsDefeated ?? false)
+        {
+            return false;
+        }
 
-			hitbox.ReceiveDamage(ShotDamage);
-			return true;
-		}
+        Vector2 worldPosition = ScreenToWorldPosition(screenPosition);
+        Godot.Collections.Array<Godot.Collections.Dictionary> results = QueryHitboxesAtWorldPosition(worldPosition);
 
-		return false;
-	}
+        foreach (Godot.Collections.Dictionary result in results)
+        {
+            GodotObject collider = ExtractCollider(result);
+            if (collider is not HitboxComponent hitbox)
+            {
+                continue;
+            }
 
-	private Godot.Collections.Array<Godot.Collections.Dictionary> QueryHitboxesAtWorldPosition(Vector2 worldPosition)
-	{
-		var spaceState = GetViewport().GetWorld2D().DirectSpaceState;
+            hitbox.ReceiveDamage(ShotDamage);
+            return true;
+        }
 
-		PhysicsPointQueryParameters2D pointQuery = new PhysicsPointQueryParameters2D
-		{
-			Position = worldPosition,
-			CollideWithAreas = true,
-			CollideWithBodies = false,
-			CollisionMask = uint.MaxValue
-		};
+        return false;
+    }
 
-		Godot.Collections.Array<Godot.Collections.Dictionary> pointResults = spaceState.IntersectPoint(pointQuery);
-		if (pointResults.Count > 0 || _shotAssistRadius <= 0f)
-		{
-			return pointResults;
-		}
+    private Godot.Collections.Array<Godot.Collections.Dictionary> QueryHitboxesAtWorldPosition(Vector2 worldPosition)
+    {
+        var spaceState = GetViewport().GetWorld2D().DirectSpaceState;
 
-		CircleShape2D assistShape = new CircleShape2D
-		{
-			Radius = Mathf.Max(1f, _shotAssistRadius)
-		};
+        PhysicsPointQueryParameters2D pointQuery = new PhysicsPointQueryParameters2D
+        {
+            Position = worldPosition,
+            CollideWithAreas = true,
+            CollideWithBodies = false,
+            CollisionMask = uint.MaxValue
+        };
 
-		PhysicsShapeQueryParameters2D shapeQuery = new PhysicsShapeQueryParameters2D
-		{
-			Shape = assistShape,
-			Transform = new Transform2D(0f, worldPosition),
-			CollideWithAreas = true,
-			CollideWithBodies = false,
-			CollisionMask = uint.MaxValue
-		};
+        Godot.Collections.Array<Godot.Collections.Dictionary> pointResults = spaceState.IntersectPoint(pointQuery);
+        if (pointResults.Count > 0 || _shotAssistRadius <= 0f)
+        {
+            return pointResults;
+        }
 
-		return spaceState.IntersectShape(shapeQuery);
-	}
+        CircleShape2D assistShape = new CircleShape2D
+        {
+            Radius = Mathf.Max(1f, _shotAssistRadius)
+        };
 
-	private Vector2 ScreenToWorldPosition(Vector2 screenPosition)
-	{
-		Transform2D canvasTransform = GetViewport().GetCanvasTransform();
-		return canvasTransform.AffineInverse() * screenPosition;
-	}
+        PhysicsShapeQueryParameters2D shapeQuery = new PhysicsShapeQueryParameters2D
+        {
+            Shape = assistShape,
+            Transform = new Transform2D(0f, worldPosition),
+            CollideWithAreas = true,
+            CollideWithBodies = false,
+            CollisionMask = uint.MaxValue
+        };
 
-	private GodotObject ExtractCollider(Godot.Collections.Dictionary result)
-	{
-		if (!result.ContainsKey("collider"))
-		{
-			return null;
-		}
+        return spaceState.IntersectShape(shapeQuery);
+    }
 
-		Variant raw = (Variant)result["collider"];
-		if (raw.VariantType == Variant.Type.Object)
-		{
-			return raw.AsGodotObject();
-		}
+    private Vector2 ScreenToWorldPosition(Vector2 screenPosition)
+    {
+        Transform2D canvasTransform = GetViewport().GetCanvasTransform();
+        return canvasTransform.AffineInverse() * screenPosition;
+    }
 
-		return null;
-	}
+    private GodotObject ExtractCollider(Godot.Collections.Dictionary result)
+    {
+        if (!result.ContainsKey("collider"))
+        {
+            return null;
+        }
 
-	private void OnDied()
-	{
-		EmitSignal(SignalName.PlayerDied);
-	}
+        Variant raw = (Variant)result["collider"];
+        if (raw.VariantType == Variant.Type.Object)
+        {
+            return raw.AsGodotObject();
+        }
 
-	private void OnDefeatStateChanged(bool isDefeated)
-	{
-		if (isDefeated)
-		{
-			_queuedShot = false;
-		}
-	}
+        return null;
+    }
+
+    private void OnDied()
+    {
+        EmitSignal(SignalName.PlayerDied);
+    }
+
+    private void OnDefeatStateChanged(bool isDefeated)
+    {
+        if (isDefeated)
+        {
+            _queuedShot = false;
+        }
+    }
 }
