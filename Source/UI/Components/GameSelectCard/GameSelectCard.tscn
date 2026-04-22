@@ -2,8 +2,10 @@
 
 [ext_resource type="Texture2D" uid="uid://bfxgcnqdickmj" path="res://icon.svg" id="1_627o8"]
 [ext_resource type="Script" uid="uid://vh71a3ix1y25" path="res://Source/UI/Components/GameSelectCard/GameSelectCard.cs" id="1_riys8"]
+[ext_resource type="AudioStream" uid="uid://c5u3hbgmj8kmk" path="res://Assets/Sounds/UI/hover.ogg" id="3_bobql"]
+[ext_resource type="AudioStream" uid="uid://dr5302f20jn5j" path="res://Assets/Sounds/UI/press.ogg" id="4_bkrcu"]
 
-[node name="GameSelectCard" type="Control" unique_id=1418073939 node_paths=PackedStringArray("_titleLabel", "_iconSprite", "_panelContainer")]
+[node name="GameSelectCard" type="Control" unique_id=1418073939 node_paths=PackedStringArray("_titleLabel", "_iconSprite", "_panelContainer", "_hoverSfxPlayer", "_clickSfxPlayer")]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -14,6 +16,8 @@ script = ExtResource("1_riys8")
 _titleLabel = NodePath("MarginContainer/PanelContainer/MarginContainer/VBoxContainer/Label")
 _iconSprite = NodePath("MarginContainer/PanelContainer/MarginContainer/VBoxContainer/TextureRect")
 _panelContainer = NodePath("MarginContainer/PanelContainer")
+_hoverSfxPlayer = NodePath("HoverPlayer")
+_clickSfxPlayer = NodePath("ClickPlayer")
 
 [node name="MarginContainer" type="MarginContainer" parent="." unique_id=399037977]
 layout_mode = 1
@@ -52,3 +56,9 @@ size_flags_vertical = 3
 texture = ExtResource("1_627o8")
 expand_mode = 2
 stretch_mode = 5
+
+[node name="HoverPlayer" type="AudioStreamPlayer" parent="." unique_id=1803191679]
+stream = ExtResource("3_bobql")
+
+[node name="ClickPlayer" type="AudioStreamPlayer" parent="." unique_id=1541146010]
+stream = ExtResource("4_bkrcu")
