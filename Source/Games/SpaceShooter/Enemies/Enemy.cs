@@ -184,7 +184,8 @@ namespace SpaceShooter.Enemies
 			}
 
 			_isDying = true;
-			_particlesComponent?.EmitAt(GlobalPosition, GetParent());
+			Node particleParent = GetParent() ?? GetTree()?.CurrentScene;
+			_particlesComponent?.EmitAt(GlobalPosition, particleParent);
 			RequestRecycle(0);
 		}
 
@@ -412,13 +413,25 @@ namespace SpaceShooter.Enemies
 
 		private void SetHitboxesEnabled(bool enabled)
 		{
-			foreach (Node child in GetChildren())
+			SetHitboxesEnabledRecursive(this, enabled);
+		}
+
+		private void SetHitboxesEnabledRecursive(Node node, bool enabled)
+		{
+			foreach (Node child in node.GetChildren())
 			{
 				if (child is Area2D area)
 				{
 					area.Monitoring = enabled;
 					area.Monitorable = enabled;
 				}
+
+				if (child is CollisionShape2D collisionShape)
+				{
+					collisionShape.Disabled = !enabled;
+				}
+
+				SetHitboxesEnabledRecursive(child, enabled);
 			}
 		}
 	}
