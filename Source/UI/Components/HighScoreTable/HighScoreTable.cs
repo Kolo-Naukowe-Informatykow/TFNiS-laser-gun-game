@@ -9,11 +9,11 @@ public partial class HighScoreTable : PanelContainer
     [Export] private int _maxEntries = 8;
     [Export] private VBoxContainer _entriesContainer;
     [Export(PropertyHint.File, "*.tscn")] private string _entryScenePath;
-    [Export] private HBoxContainer CurrentEntryContainer;
-    [Export] private Label CurrentPlaceLabel;
-    [Export] private LineEdit CurrentNameLineEdit;
-    [Export] private Label CurrentScoreLabel;
-    [Export] private Label CurrentDateLabel;
+    [Export] private HBoxContainer _currentEntryContainer;
+    [Export] private Label _currentPlaceLabel;
+    [Export] private LineEdit _currentNameLineEdit;
+    [Export] private Label _currentScoreLabel;
+    [Export] private Label _currentDateLabel;
 
     private PackedScene _entryScene;
     private bool _callbacksConnected;
@@ -29,35 +29,35 @@ public partial class HighScoreTable : PanelContainer
             _entryScene = ResourceLoader.Load<PackedScene>(_entryScenePath);
         }
 
-        if (CurrentNameLineEdit != null && !_callbacksConnected)
+        if (_currentNameLineEdit != null && !_callbacksConnected)
         {
-            CurrentNameLineEdit.TextSubmitted += OnCurrentNameSubmitted;
-            CurrentNameLineEdit.FocusExited += OnCurrentNameFocusExited;
+            _currentNameLineEdit.TextSubmitted += OnCurrentNameSubmitted;
+            _currentNameLineEdit.FocusExited += OnCurrentNameFocusExited;
             _callbacksConnected = true;
         }
 
-        if (CurrentPlaceLabel != null)
+        if (_currentPlaceLabel != null)
         {
-            CurrentPlaceLabel.Text = "-";
+            _currentPlaceLabel.Text = "-";
         }
 
-        if (CurrentScoreLabel != null)
+        if (_currentScoreLabel != null)
         {
-            CurrentScoreLabel.Text = "0";
+            _currentScoreLabel.Text = "0";
         }
 
-        if (CurrentDateLabel != null)
+        if (_currentDateLabel != null)
         {
-            CurrentDateLabel.Text = "-";
+            _currentDateLabel.Text = "-";
         }
     }
 
     public override void _ExitTree()
     {
-        if (CurrentNameLineEdit != null && _callbacksConnected)
+        if (_currentNameLineEdit != null && _callbacksConnected)
         {
-            CurrentNameLineEdit.TextSubmitted -= OnCurrentNameSubmitted;
-            CurrentNameLineEdit.FocusExited -= OnCurrentNameFocusExited;
+            _currentNameLineEdit.TextSubmitted -= OnCurrentNameSubmitted;
+            _currentNameLineEdit.FocusExited -= OnCurrentNameFocusExited;
         }
     }
 
@@ -124,25 +124,25 @@ public partial class HighScoreTable : PanelContainer
         int score = currentEntry?.Score ?? scoreManager.CurrentScore;
         DateTime achievedAt = currentEntry?.AchievedAtUtc ?? DateTime.UtcNow;
 
-        if (CurrentPlaceLabel != null)
+        if (_currentPlaceLabel != null)
         {
-            CurrentPlaceLabel.Text = inTop ? currentPlace.ToString() : $">{_maxEntries}";
+            _currentPlaceLabel.Text = inTop ? currentPlace.ToString() : $">{_maxEntries}";
         }
 
-        if (CurrentNameLineEdit != null)
+        if (_currentNameLineEdit != null)
         {
-            CurrentNameLineEdit.Text = displayName;
-            CurrentNameLineEdit.Editable = currentEntry != null;
+            _currentNameLineEdit.Text = displayName;
+            _currentNameLineEdit.Editable = currentEntry != null;
         }
 
-        if (CurrentScoreLabel != null)
+        if (_currentScoreLabel != null)
         {
-            CurrentScoreLabel.Text = score.ToString();
+            _currentScoreLabel.Text = score.ToString();
         }
 
-        if (CurrentDateLabel != null)
+        if (_currentDateLabel != null)
         {
-            CurrentDateLabel.Text = achievedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm");
+            _currentDateLabel.Text = achievedAt.ToLocalTime().ToString("dd/MM HH:mm");
         }
     }
 
@@ -320,34 +320,34 @@ public partial class HighScoreTable : PanelContainer
     {
         _entriesContainer ??= GetNodeOrNull<VBoxContainer>("VBoxContainer2/EntryContainer");
 
-        if (CurrentEntryContainer == null || !GodotObject.IsInstanceValid(CurrentEntryContainer))
+        if (_currentEntryContainer == null || !GodotObject.IsInstanceValid(_currentEntryContainer))
         {
-            CurrentEntryContainer = GetNodeOrNull<HBoxContainer>("VBoxContainer2/EntryContainer/PanelContainer/CurrentScoreTableEntry");
+            _currentEntryContainer = GetNodeOrNull<HBoxContainer>("VBoxContainer2/EntryContainer/PanelContainer/CurrentScoreTableEntry");
         }
 
-        if (CurrentEntryContainer != null)
+        if (_currentEntryContainer != null)
         {
-            _currentEntryWrapper = CurrentEntryContainer.GetParent<Control>();
+            _currentEntryWrapper = _currentEntryContainer.GetParent<Control>();
         }
 
-        if (CurrentPlaceLabel == null || !GodotObject.IsInstanceValid(CurrentPlaceLabel))
+        if (_currentPlaceLabel == null || !GodotObject.IsInstanceValid(_currentPlaceLabel))
         {
-            CurrentPlaceLabel = GetNodeOrNull<Label>("VBoxContainer2/EntryContainer/PanelContainer/CurrentScoreTableEntry/PlaceLabel");
+            _currentPlaceLabel = GetNodeOrNull<Label>("VBoxContainer2/EntryContainer/PanelContainer/CurrentScoreTableEntry/PlaceLabel");
         }
 
-        if (CurrentNameLineEdit == null || !GodotObject.IsInstanceValid(CurrentNameLineEdit))
+        if (_currentNameLineEdit == null || !GodotObject.IsInstanceValid(_currentNameLineEdit))
         {
-            CurrentNameLineEdit = GetNodeOrNull<LineEdit>("VBoxContainer2/EntryContainer/PanelContainer/CurrentScoreTableEntry/NameLabel");
+            _currentNameLineEdit = GetNodeOrNull<LineEdit>("VBoxContainer2/EntryContainer/PanelContainer/CurrentScoreTableEntry/NameLabel");
         }
 
-        if (CurrentScoreLabel == null || !GodotObject.IsInstanceValid(CurrentScoreLabel))
+        if (_currentScoreLabel == null || !GodotObject.IsInstanceValid(_currentScoreLabel))
         {
-            CurrentScoreLabel = GetNodeOrNull<Label>("VBoxContainer2/EntryContainer/PanelContainer/CurrentScoreTableEntry/ScoreLabel");
+            _currentScoreLabel = GetNodeOrNull<Label>("VBoxContainer2/EntryContainer/PanelContainer/CurrentScoreTableEntry/ScoreLabel");
         }
 
-        if (CurrentDateLabel == null || !GodotObject.IsInstanceValid(CurrentDateLabel))
+        if (_currentDateLabel == null || !GodotObject.IsInstanceValid(_currentDateLabel))
         {
-            CurrentDateLabel = GetNodeOrNull<Label>("VBoxContainer2/EntryContainer/PanelContainer/CurrentScoreTableEntry/DateLabel");
+            _currentDateLabel = GetNodeOrNull<Label>("VBoxContainer2/EntryContainer/PanelContainer/CurrentScoreTableEntry/DateLabel");
         }
     }
 
@@ -383,12 +383,12 @@ public partial class HighScoreTable : PanelContainer
 
     private void OnCurrentNameFocusExited()
     {
-        if (CurrentNameLineEdit == null)
+        if (_currentNameLineEdit == null)
         {
             return;
         }
 
-        ApplyCurrentPlayerName(CurrentNameLineEdit.Text);
+        ApplyCurrentPlayerName(_currentNameLineEdit.Text);
     }
 
     private void ApplyCurrentPlayerName(string value)

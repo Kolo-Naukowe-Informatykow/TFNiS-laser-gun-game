@@ -2,15 +2,15 @@
 
 [ext_resource type="Script" uid="uid://dg5dicciuf2em" path="res://Source/UI/Components/HighScoreTable/HighScoreTable.cs" id="1_xp5ji"]
 
-[node name="HighScoreTable" type="PanelContainer" unique_id=965665501 node_paths=PackedStringArray("_entriesContainer", "CurrentEntryContainer", "CurrentPlaceLabel", "CurrentNameLineEdit", "CurrentScoreLabel", "CurrentDateLabel")]
+[node name="HighScoreTable" type="PanelContainer" unique_id=965665501 node_paths=PackedStringArray("_entriesContainer", "_currentEntryContainer", "_currentPlaceLabel", "_currentNameLineEdit", "_currentScoreLabel", "_currentDateLabel")]
 script = ExtResource("1_xp5ji")
 _entriesContainer = NodePath("VBoxContainer2/EntryContainer")
 _entryScenePath = "uid://bkpi1ev2qqxfx"
-CurrentEntryContainer = NodePath("VBoxContainer2/EntryContainer/PanelContainer/CurrentScoreTableEntry")
-CurrentPlaceLabel = NodePath("VBoxContainer2/EntryContainer/PanelContainer/CurrentScoreTableEntry/PlaceLabel")
-CurrentNameLineEdit = NodePath("VBoxContainer2/EntryContainer/PanelContainer/CurrentScoreTableEntry/NameLabel")
-CurrentScoreLabel = NodePath("VBoxContainer2/EntryContainer/PanelContainer/CurrentScoreTableEntry/ScoreLabel")
-CurrentDateLabel = NodePath("VBoxContainer2/EntryContainer/PanelContainer/CurrentScoreTableEntry/DateLabel")
+_currentEntryContainer = NodePath("VBoxContainer2/EntryContainer/PanelContainer/CurrentScoreTableEntry")
+_currentPlaceLabel = NodePath("VBoxContainer2/EntryContainer/PanelContainer/CurrentScoreTableEntry/PlaceLabel")
+_currentNameLineEdit = NodePath("VBoxContainer2/EntryContainer/PanelContainer/CurrentScoreTableEntry/NameLabel")
+_currentScoreLabel = NodePath("VBoxContainer2/EntryContainer/PanelContainer/CurrentScoreTableEntry/ScoreLabel")
+_currentDateLabel = NodePath("VBoxContainer2/EntryContainer/PanelContainer/CurrentScoreTableEntry/DateLabel")
 
 [node name="VBoxContainer2" type="VBoxContainer" parent="." unique_id=263733542]
 layout_mode = 2

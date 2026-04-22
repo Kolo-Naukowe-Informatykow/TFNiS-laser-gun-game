@@ -87,12 +87,12 @@ public partial class ScoreManager : Node
 			return null;
 		}
 
-		_runFinalized = true;
-
 		if (CurrentScore <= 0)
 		{
 			return null;
 		}
+
+		_runFinalized = true;
 
 		string normalizedPlayerName = string.IsNullOrWhiteSpace(PlayerName) ? "Player" : PlayerName.Trim();
 		HighScoreEntry entry = new HighScoreEntry
@@ -110,10 +110,11 @@ public partial class ScoreManager : Node
 			_highScores.RemoveRange(MaxHighScores, _highScores.Count - MaxHighScores);
 		}
 
+		bool entryPersisted = _highScores.Contains(entry);
+		LastFinalizedEntry = entryPersisted ? entry : null;
 		SaveHighScores();
-		LastFinalizedEntry = entry;
 		EmitSignal(SignalName.HighScoresChanged);
-		return entry;
+		return LastFinalizedEntry;
 	}
 
 	public HighScoreEntry GetBestHighScore()
@@ -123,8 +124,9 @@ public partial class ScoreManager : Node
 
 	public void UpdateLastFinalizedPlayerName(string playerName)
 	{
-		if (LastFinalizedEntry == null)
+		if (LastFinalizedEntry == null || !_highScores.Contains(LastFinalizedEntry))
 		{
+			LastFinalizedEntry = null;
 			return;
 		}
 

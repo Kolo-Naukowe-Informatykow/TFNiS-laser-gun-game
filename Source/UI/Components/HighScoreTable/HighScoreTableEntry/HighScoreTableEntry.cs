@@ -13,6 +13,6 @@ public partial class HighScoreTableEntry : HBoxContainer
         _numberLabel.Text = $"{place}.";
         _nameLabel.Text = name;
         _scoreLabel.Text = score.ToString();
-        _dateLabel.Text = date.ToString("dd.MM.yyyy HH:mm");
+        _dateLabel.Text = date.ToString("dd/MM HH:mm");
     }
 }
