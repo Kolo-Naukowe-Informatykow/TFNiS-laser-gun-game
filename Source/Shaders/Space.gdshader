@@ -13,7 +13,6 @@ const float STAR_CORE_SIZE = 0.14;
 const float CLUSTER_SCALE = 0.02;
 
 uniform int ray_march_steps : hint_range(32, 200, 1) = 96;
-uniform int nebula_steps : hint_range(1, 4, 1) = 1;
 uniform float flight_speed : hint_range(0.0, 20.0, 0.1) = 6.0;
 uniform float star_threshold : hint_range(0.7, 0.99, 0.001) = 0.93;
 
@@ -108,39 +107,6 @@ vec3 get_star_position(ivec3 chunk, float star_size) {
     return star_size * vec3(1.0) + (1.0 - 2.0 * star_size) * position;
 }
 
-vec4 get_nebula_color(vec3 global_position, vec3 ray_direction) {
-    vec3 color = vec3(0.0);
-    float space_left = 1.0;
-
-    const float layer_distance = 10.0;
-    float ray_z = abs(ray_direction.z) < 0.0001 ? 0.0001 * nonzero_sign(ray_direction.z) : ray_direction.z;
-    float global_layer_progress = fract(global_position.z / layer_distance);
-
-    const int max_steps = 4;
-    int steps = clamp(nebula_steps, 1, max_steps);
-    for (int i = 0; i < max_steps; i++) {
-        if (i >= steps) {
-            break;
-        }
-        vec3 noise_eval = global_position + ray_direction * ((1.0 - global_layer_progress + float(i)) * layer_distance / ray_z);
-        noise_eval.xy += noise_eval.z;
-
-        float value = 0.06 * channel_noise(noise_eval.xy / 60.0);
-
-        if (i == 0) {
-            value *= 1.0 - global_layer_progress;
-        } else if (i == steps) {
-            value *= global_layer_progress;
-        }
-
-        float hue = mod(noise_eval.z / layer_distance / 34.444, 1.0);
-
-        color += space_left * hsv2rgb(vec3(hue, 1.0, value));
-        space_left = max(0.0, space_left - value * 2.0);
-    }
-    return vec4(color, 1.0);
-}
-
 vec4 get_star_glow_color(float star_distance, float hue) {
     float progress = 1.0 - star_distance;
     return vec4(hsv2rgb(vec3(hue, 0.22, 1.0)), 0.34 * progress * progress);
@@ -189,7 +155,10 @@ void fragment() {
     float star_core_radius = STAR_SIZE * STAR_CORE_SIZE;
     float star_core_radius_sq = star_core_radius * star_core_radius;
 
-    vec4 frag_color = vec4(0.0);
+    vec3 background_top = vec3(0.01, 0.02, 0.05);
+    vec3 background_bottom = vec3(0.0, 0.0, 0.01);
+    float background_mix = clamp(frag_coord.y / max(1.0, resolution.y), 0.0, 1.0);
+    vec4 frag_color = vec4(mix(background_bottom, background_top, background_mix), 1.0);
 
     for (int i = 0; i < 200; i++) {
         if (i >= ray_march_steps) {
@@ -227,10 +196,6 @@ void fragment() {
                 frag_color = blend_colors(frag_color, glow_color);
             }
         }
-    }
-
-    if (frag_color.a < 1.0) {
-        frag_color = blend_colors(frag_color, get_nebula_color(global_position, ray_direction));
     }
 
     COLOR = frag_color;
