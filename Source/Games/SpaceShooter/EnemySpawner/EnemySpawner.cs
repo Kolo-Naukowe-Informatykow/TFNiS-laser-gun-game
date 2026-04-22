@@ -6,6 +6,7 @@ using SpaceShooter.Enemies;
 
 public partial class EnemySpawner : Node
 {
+    [Signal] public delegate void EnemyDefeatedEventHandler(int scoreValue);
     [Signal] public delegate void EnemyEscapedEventHandler(int damageToPlayer);
 
     [Export] private Godot.Collections.Array<PackedScene> _enemyScenes;
@@ -166,6 +167,7 @@ public partial class EnemySpawner : Node
 
             enemy = instantiatedEnemy;
             enemy.Name = BuildEnemyNodeName(enemyScene);
+            enemy.Defeated += OnEnemyDefeated;
             enemy.RecycleRequested += OnEnemyRecycleRequested;
             _sceneByEnemy[enemy] = enemyScene;
         }
@@ -232,6 +234,11 @@ public partial class EnemySpawner : Node
         }
 
         ReturnEnemyToPool(enemy);
+    }
+
+    private void OnEnemyDefeated(int scoreValue)
+    {
+        EmitSignal(SignalName.EnemyDefeated, scoreValue);
     }
 
     private void PrewarmPools()

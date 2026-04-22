@@ -59,14 +59,17 @@ public partial class ParticlesComponent : Node
 		}
 
 		GpuParticles2D particles = AcquireParticle(targetParent);
+		particles.Visible = true;
+		particles.Modulate = Colors.White;
+		particles.Rotation = 0f;
+		particles.Scale = Vector2.One;
+		particles.Restart();
 		particles.GlobalPosition = worldPosition;
 		particles.Amount = Math.Max(1, _amount);
 		particles.OneShot = true;
 		particles.Emitting = false;
 		particles.Explosiveness = 1.0f;
 		particles.LocalCoords = false;
-		particles.Visible = true;
-		particles.Modulate = Colors.White;
 		particles.Texture = GetOrCreateTexture();
 		particles.ProcessMaterial = GetOrCreateProcessMaterial();
 
@@ -75,7 +78,10 @@ public partial class ParticlesComponent : Node
 		particles.Emitting = true;
 
 		float fadeDuration = Mathf.Clamp(_fadeOutDuration, 0.05f, (float)particles.Lifetime);
+		Tween existingTween = GetTweenMeta(particles, "FadeTween");
+		existingTween?.Kill();
 		Tween fadeTween = particles.CreateTween();
+		particles.SetMeta("FadeTween", fadeTween);
 		fadeTween.TweenInterval(Mathf.Max(0.01f, particles.Lifetime - fadeDuration));
 		fadeTween.TweenProperty(particles, "modulate", new Color(1f, 1f, 1f, 0f), fadeDuration);
 
@@ -106,6 +112,9 @@ public partial class ParticlesComponent : Node
 
 		Timer cleanupTimer = particles.GetNodeOrNull<Timer>("ReturnTimer");
 		cleanupTimer?.Stop();
+		Tween existingTween = GetTweenMeta(particles, "FadeTween");
+		existingTween?.Kill();
+		particles.RemoveMeta("FadeTween");
 		particles.Emitting = false;
 		particles.Visible = false;
 		particles.Modulate = Colors.White;
@@ -195,6 +204,22 @@ public partial class ParticlesComponent : Node
 		}
 
 		return ImageTexture.CreateFromImage(image);
+	}
+
+	private static Tween GetTweenMeta(GpuParticles2D particles, string key)
+	{
+		if (particles == null || !particles.HasMeta(key))
+		{
+			return null;
+		}
+
+		Variant rawTween = particles.GetMeta(key);
+		if (rawTween.VariantType != Variant.Type.Object)
+		{
+			return null;
+		}
+
+		return rawTween.AsGodotObject() as Tween;
 	}
 
 	private GradientTexture1D GetOrCreateFadeRamp()

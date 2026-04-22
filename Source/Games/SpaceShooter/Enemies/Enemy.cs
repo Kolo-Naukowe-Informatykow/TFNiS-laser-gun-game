@@ -27,6 +27,7 @@ namespace SpaceShooter.Enemies
 
 	public partial class Enemy : Node2D
 	{
+		[Signal] public delegate void DefeatedEventHandler(int scoreValue);
 		[Signal] public delegate void EscapedEventHandler(int damageToPlayer);
 		[Signal] public delegate void RecycleRequestedEventHandler(Enemy enemy, int damageToPlayer);
 
@@ -59,6 +60,7 @@ namespace SpaceShooter.Enemies
 		[Export] private float _hitShakeDuration = 0.16f;
 		[Export] private float _hitShakeStrength = 16.0f;
 		[Export] private int _hitShakeSteps = 12;
+		[Export] private int _scoreValue = 100;
 
 		[Export] private EnemyFlightPattern _flightPattern = EnemyFlightPattern.Forward;
 		private Vector2 _startPoint;
@@ -186,6 +188,7 @@ namespace SpaceShooter.Enemies
 			_isDying = true;
 			Node particleParent = GetParent() ?? GetTree()?.CurrentScene;
 			_particlesComponent?.EmitAt(GlobalPosition, particleParent);
+			EmitSignal(SignalName.Defeated, Math.Max(0, _scoreValue));
 			RequestRecycle(0);
 		}
 

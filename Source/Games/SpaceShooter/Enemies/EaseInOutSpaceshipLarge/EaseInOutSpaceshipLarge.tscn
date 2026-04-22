@@ -11,6 +11,7 @@ radius = 281.1441
 script = ExtResource("2_8ybkr")
 _maxScale = 1.2
 _depthSpeed = 0.06
+_scoreValue = 200
 _flightPattern = 2
 
 [node name="Sprite2D" parent="." index="0" unique_id=706178824]
