@@ -29,6 +29,7 @@ public partial class Crosshair : CanvasLayer
     {
         Input.MouseMode = Input.MouseModeEnum.Visible;
         ProcessMode = ProcessModeEnum.Always;
+        SetProcess(true);
 
         _cursorIdleTexture = ResourceLoader.Load<Texture2D>("res://Assets/Textures/Crosshair/56_cursor_idle.png");
         _cursorClickTexture = ResourceLoader.Load<Texture2D>("res://Assets/Textures/Crosshair/56_cursor_click.png");
@@ -74,12 +75,13 @@ public partial class Crosshair : CanvasLayer
 		}
     }
 
-    public override void _Input(InputEvent @event)
+    public override void _Process(double delta)
     {
-        if (@event.IsActionPressed("Shoot"))
+        _ = delta;
+
+        if (Input.IsActionPressed("Shoot"))
         {
-			PlayClickCursorAnimation();
-			_trackedPlayer?.RequestShot(GetViewport().GetMousePosition());
+            _trackedPlayer?.RequestShot(GetViewport().GetMousePosition());
         }
     }
 
@@ -134,6 +136,8 @@ public partial class Crosshair : CanvasLayer
 
     private void OnPlayerShotFired(Vector2 screenPosition)
     {
+        PlayClickCursorAnimation();
+
         if (_enableLightGunForceFeedback)
         {
             _lightGunPort?.SendAscii(_lightGunShotCommand);
