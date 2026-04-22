@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://bfs3m88uys2to"]
+
+[ext_resource type="Script" uid="uid://evjsqc8n0emb" path="res://Source/Games/SpaceShooter/Managers/ScoreManager/ScoreManager.cs" id="1_8tfre"]
+
+[node name="ScoreManager" type="Node" unique_id=886193939]
+script = ExtResource("1_8tfre")

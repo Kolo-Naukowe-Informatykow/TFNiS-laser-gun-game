@@ -1,0 +1,99 @@
+[gd_scene format=3 uid="uid://pljkevfspyiw"]
+
+[ext_resource type="Script" uid="uid://dg5dicciuf2em" path="res://Source/UI/Components/HighScoreTable/HighScoreTable.cs" id="1_xp5ji"]
+
+[node name="HighScoreTable" type="PanelContainer" unique_id=965665501 node_paths=PackedStringArray("_entriesContainer", "CurrentEntryContainer", "CurrentPlaceLabel", "CurrentNameLineEdit", "CurrentScoreLabel", "CurrentDateLabel")]
+script = ExtResource("1_xp5ji")
+_entriesContainer = NodePath("VBoxContainer2/EntryContainer")
+_entryScenePath = "uid://bkpi1ev2qqxfx"
+CurrentEntryContainer = NodePath("VBoxContainer2/EntryContainer/PanelContainer/CurrentScoreTableEntry")
+CurrentPlaceLabel = NodePath("VBoxContainer2/EntryContainer/PanelContainer/CurrentScoreTableEntry/PlaceLabel")
+CurrentNameLineEdit = NodePath("VBoxContainer2/EntryContainer/PanelContainer/CurrentScoreTableEntry/NameLabel")
+CurrentScoreLabel = NodePath("VBoxContainer2/EntryContainer/PanelContainer/CurrentScoreTableEntry/ScoreLabel")
+CurrentDateLabel = NodePath("VBoxContainer2/EntryContainer/PanelContainer/CurrentScoreTableEntry/DateLabel")
+
+[node name="VBoxContainer2" type="VBoxContainer" parent="." unique_id=263733542]
+layout_mode = 2
+
+[node name="PanelContainer" type="PanelContainer" parent="VBoxContainer2" unique_id=623163276]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer2/PanelContainer" unique_id=1875897208]
+layout_mode = 2
+size_flags_vertical = 2
+
+[node name="PlaceLabel" type="Label" parent="VBoxContainer2/PanelContainer/HBoxContainer" unique_id=1223819439]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 32
+text = "PLACE"
+
+[node name="NameLabel" type="Label" parent="VBoxContainer2/PanelContainer/HBoxContainer" unique_id=842817672]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 3.0
+theme_override_font_sizes/font_size = 32
+text = "NAME"
+
+[node name="ScoreLabel" type="Label" parent="VBoxContainer2/PanelContainer/HBoxContainer" unique_id=377340283]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 3.0
+theme_override_font_sizes/font_size = 32
+text = "SCORE"
+vertical_alignment = 1
+
+[node name="DateLabel" type="Label" parent="VBoxContainer2/PanelContainer/HBoxContainer" unique_id=622684221]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 2.0
+theme_override_font_sizes/font_size = 32
+text = "DATE"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="EntryContainer" type="VBoxContainer" parent="VBoxContainer2" unique_id=1919484710]
+layout_mode = 2
+size_flags_vertical = 3
+size_flags_stretch_ratio = 16.0
+
+[node name="PanelContainer" type="PanelContainer" parent="VBoxContainer2/EntryContainer" unique_id=323784817]
+layout_mode = 2
+size_flags_vertical = 6
+
+[node name="CurrentScoreTableEntry" type="HBoxContainer" parent="VBoxContainer2/EntryContainer/PanelContainer" unique_id=1091532097]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="PlaceLabel" type="Label" parent="VBoxContainer2/EntryContainer/PanelContainer/CurrentScoreTableEntry" unique_id=299013339]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 32
+text = "xx"
+
+[node name="NameLabel" type="LineEdit" parent="VBoxContainer2/EntryContainer/PanelContainer/CurrentScoreTableEntry" unique_id=938998297]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+size_flags_stretch_ratio = 3.0
+theme_override_font_sizes/font_size = 32
+text = "YOU"
+placeholder_text = "PLAYER"
+max_length = 16
+
+[node name="ScoreLabel" type="Label" parent="VBoxContainer2/EntryContainer/PanelContainer/CurrentScoreTableEntry" unique_id=1499672748]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 3.0
+theme_override_font_sizes/font_size = 32
+text = "99999"
+vertical_alignment = 1
+
+[node name="DateLabel" type="Label" parent="VBoxContainer2/EntryContainer/PanelContainer/CurrentScoreTableEntry" unique_id=1127104976]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 2.0
+theme_override_font_sizes/font_size = 32
+text = "23/04 10:21"
+horizontal_alignment = 2
+vertical_alignment = 1
