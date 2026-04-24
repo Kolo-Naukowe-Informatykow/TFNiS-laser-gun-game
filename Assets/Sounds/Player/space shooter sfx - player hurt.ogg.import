@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://deux3jvcds2b7"
+path="res://.godot/imported/space shooter sfx - player hurt.ogg-7053370e3aa5e43315be1f9c13798d4a.oggvorbisstr"
+
+[deps]
+
+source_file="res://Assets/Sounds/Player/space shooter sfx - player hurt.ogg"
+dest_files=["res://.godot/imported/space shooter sfx - player hurt.ogg-7053370e3aa5e43315be1f9c13798d4a.oggvorbisstr"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

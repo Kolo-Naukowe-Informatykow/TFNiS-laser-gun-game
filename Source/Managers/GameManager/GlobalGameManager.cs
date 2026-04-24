@@ -3,124 +3,141 @@ using System;
 
 public partial class GlobalGameManager : Node
 {
-        public static GlobalGameManager Instance
+    public static GlobalGameManager Instance
+    {
+        get
         {
-            get
-            {
-                SceneTree tree = Engine.GetMainLoop() as SceneTree;
-                return tree?.Root?.GetNodeOrNull<GlobalGameManager>("GlobalGameManager");
-            }
+            SceneTree tree = Engine.GetMainLoop() as SceneTree;
+            return tree?.Root?.GetNodeOrNull<GlobalGameManager>("GlobalGameManager");
         }
-        [Signal] public delegate void CurrentGameChangedEventHandler(int game);
+    }
+    [Signal] public delegate void CurrentGameChangedEventHandler(int game);
 
-        [Export] private ulong _seed = 0;
+    [Export] private ulong _seed = 0;
 
-        public enum Games
+    public enum Games
+    {
+        SpaceShooter,
+    }
+
+    public Games CurrentGame { get; private set; } = Games.SpaceShooter;
+    public ulong RuntimeSeed { get; private set; }
+
+    private ulong _rngSequence = 1;
+
+    public override void _Ready()
+    {
+        ProcessMode = ProcessModeEnum.Always;
+        RuntimeSeed = _seed != 0 ? _seed : GenerateRandomSeed();
+        _rngSequence = 1;
+    }
+
+    public override void _UnhandledInput(InputEvent @event)
+    {
+        if (@event.IsActionPressed("ExitGame"))
         {
-            SpaceShooter,
-        }
-
-        public Games CurrentGame { get; private set; } = Games.SpaceShooter;
-        public ulong RuntimeSeed { get; private set; }
-
-        private ulong _rngSequence = 1;
-
-        public override void _Ready()
-        {
-            ProcessMode = ProcessModeEnum.Always;
-            RuntimeSeed = _seed != 0 ? _seed : GenerateRandomSeed();
-            _rngSequence = 1;
-        }
-
-        public override void _UnhandledInput(InputEvent @event)
-        {
-            if (@event.IsActionPressed("ExitGame"))
-            {
-                GetTree().Quit();
-                return;
-            }
-
-            if (@event.IsActionPressed("FullscreenToggle"))
-            {
-                ToggleFullscreenMode();
-            }
+            GetTree().Quit();
+            return;
         }
 
-        private static void ToggleFullscreenMode()
+        if (@event.IsActionPressed("FullscreenToggle"))
         {
-            DisplayServer.WindowMode currentMode = DisplayServer.WindowGetMode();
-            bool isFullscreen = currentMode == DisplayServer.WindowMode.Fullscreen
-                || currentMode == DisplayServer.WindowMode.ExclusiveFullscreen;
-
-            if (isFullscreen)
-            {
-                DisplayServer.WindowSetMode(DisplayServer.WindowMode.Windowed);
-                DisplayServer.WindowSetFlag(DisplayServer.WindowFlags.Borderless, false);
-                return;
-            }
-
-            DisplayServer.WindowSetFlag(DisplayServer.WindowFlags.Borderless, true);
-            DisplayServer.WindowSetMode(DisplayServer.WindowMode.Fullscreen);
+            ToggleFullscreenMode();
         }
 
-        public bool IsCurrentGame(Games game)
+        if (@event.IsActionPressed("MuteToggle"))
         {
-            return CurrentGame == game;
+            ToggleMute();
         }
 
-        public void SetCurrentGame(Games game)
-        {
-            if (CurrentGame == game)
-            {
-                return;
-            }
+    }
 
-            CurrentGame = game;
-            EmitSignal(SignalName.CurrentGameChanged, (int)CurrentGame);
+    private static void ToggleFullscreenMode()
+    {
+        DisplayServer.WindowMode currentMode = DisplayServer.WindowGetMode();
+        bool isFullscreen = currentMode == DisplayServer.WindowMode.Fullscreen
+            || currentMode == DisplayServer.WindowMode.ExclusiveFullscreen;
+
+        if (isFullscreen)
+        {
+            DisplayServer.WindowSetMode(DisplayServer.WindowMode.Windowed);
+            DisplayServer.WindowSetFlag(DisplayServer.WindowFlags.Borderless, false);
+            return;
         }
 
-        public void SeedRngUnique(RandomNumberGenerator rng, string streamName)
-        {
-            if (rng == null)
-            {
-                return;
-            }
+        DisplayServer.WindowSetFlag(DisplayServer.WindowFlags.Borderless, true);
+        DisplayServer.WindowSetMode(DisplayServer.WindowMode.Fullscreen);
+    }
 
-            ulong streamSeed = HashStreamName(streamName);
-            ulong mixed = Mix64(RuntimeSeed ^ streamSeed ^ _rngSequence);
-            _rngSequence++;
-            rng.Seed = mixed;
+    private static void ToggleMute()
+    {
+        var bus = AudioServer.GetBusIndex("Master");
+
+        var targetMuteState = !AudioServer.IsBusMute(bus);
+
+        GD.Print("Audio " + (targetMuteState ? "muted" : "unmuted"));
+
+        AudioServer.SetBusMute(bus, targetMuteState);
+    }
+
+    public bool IsCurrentGame(Games game)
+    {
+        return CurrentGame == game;
+    }
+
+    public void SetCurrentGame(Games game)
+    {
+        if (CurrentGame == game)
+        {
+            return;
         }
 
-        private static ulong GenerateRandomSeed()
+        CurrentGame = game;
+        EmitSignal(SignalName.CurrentGameChanged, (int)CurrentGame);
+    }
+
+    public void SeedRngUnique(RandomNumberGenerator rng, string streamName)
+    {
+        if (rng == null)
         {
-            ulong ticks = (ulong)DateTime.UtcNow.Ticks;
-            ulong processTime = (ulong)Time.GetTicksUsec();
-            return Mix64(ticks ^ processTime);
+            return;
         }
 
-        private static ulong HashStreamName(string value)
+        ulong streamSeed = HashStreamName(streamName);
+        ulong mixed = Mix64(RuntimeSeed ^ streamSeed ^ _rngSequence);
+        _rngSequence++;
+        rng.Seed = mixed;
+    }
+
+    private static ulong GenerateRandomSeed()
+    {
+        ulong ticks = (ulong)DateTime.UtcNow.Ticks;
+        ulong processTime = (ulong)Time.GetTicksUsec();
+        return Mix64(ticks ^ processTime);
+    }
+
+    private static ulong HashStreamName(string value)
+    {
+        if (string.IsNullOrEmpty(value))
         {
-            if (string.IsNullOrEmpty(value))
-            {
-                return 1469598103934665603UL;
-            }
-
-            ulong hash = 1469598103934665603UL;
-            for (int i = 0; i < value.Length; i++)
-            {
-                hash ^= value[i];
-                hash *= 1099511628211UL;
-            }
-
-            return hash;
+            return 1469598103934665603UL;
         }
 
-        private static ulong Mix64(ulong z)
+        ulong hash = 1469598103934665603UL;
+        for (int i = 0; i < value.Length; i++)
         {
-            z += 0x9e3779b97f4a7c15UL;
-            z = (z ^ (z >> 30)) * 0xbf58476d1ce4e5b9UL;
-            z = (z ^ (z >> 27)) * 0x94d049bb133111ebUL;
-            return z ^ (z >> 31);
+            hash ^= value[i];
+            hash *= 1099511628211UL;
         }
+
+        return hash;
+    }
+
+    private static ulong Mix64(ulong z)
+    {
+        z += 0x9e3779b97f4a7c15UL;
+        z = (z ^ (z >> 30)) * 0xbf58476d1ce4e5b9UL;
+        z = (z ^ (z >> 27)) * 0x94d049bb133111ebUL;
+        return z ^ (z >> 31);
+    }
 }

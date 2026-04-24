@@ -11,6 +11,8 @@ public partial class GameSelectCard : Control
     [Export] private PanelContainer _panelContainer;
     [Export] private Color _normalPanelModulate = Colors.White;
     [Export] private Color _hoverPanelModulate = new Color(1.12f, 1.12f, 1.12f, 1.0f);
+    [Export] private AudioStreamPlayer _hoverSfxPlayer;
+    [Export] private AudioStreamPlayer _clickSfxPlayer;
 
     private bool _isHovered;
 
@@ -33,10 +35,12 @@ public partial class GameSelectCard : Control
 
     public override void _GuiInput(InputEvent @event)
     {
+        // If pressed with LMB try loading scene
         if (@event is InputEventMouseButton mouseButton
             && mouseButton.ButtonIndex == MouseButton.Left
             && mouseButton.Pressed)
         {
+            _clickSfxPlayer.Play();
             TryLoadScene();
             AcceptEvent();
         }
@@ -46,6 +50,8 @@ public partial class GameSelectCard : Control
     {
         _isHovered = true;
         UpdateVisualState();
+
+        _hoverSfxPlayer.Play();
     }
 
     private void OnMouseExited()
