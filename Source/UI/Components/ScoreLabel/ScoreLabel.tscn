@@ -3,6 +3,6 @@
 [ext_resource type="Script" uid="uid://c4yj0bkjnh78d" path="res://Source/UI/Components/ScoreLabel/ScoreLabel.cs" id="1_a8oqv"]
 
 [node name="ScoreLabel" type="Label" unique_id=292262906]
-theme_override_font_sizes/font_size = 32
+theme_override_font_sizes/font_size = 48
 text = "565"
 script = ExtResource("1_a8oqv")

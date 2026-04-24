@@ -27,6 +27,35 @@ public partial class HealthComponent : Node
 		EmitSignal(SignalName.HealthChanged, CurrentHp, MaxHp);
 	}
 
+	public void SetMaxHp(int maxHp, bool scaleCurrentHp = true)
+	{
+		int previousMaxHp = Math.Max(1, MaxHp);
+		int previousCurrentHp = CurrentHp;
+		int sanitizedMaxHp = Math.Max(1, maxHp);
+
+		MaxHp = sanitizedMaxHp;
+
+		if (_isDead)
+		{
+			CurrentHp = 0;
+		}
+		else if (scaleCurrentHp && previousMaxHp > 0)
+		{
+			float healthRatio = Mathf.Clamp((float)previousCurrentHp / previousMaxHp, 0f, 1f);
+			int scaledCurrentHp = Mathf.CeilToInt(MaxHp * healthRatio);
+			CurrentHp = Mathf.Clamp(scaledCurrentHp, 0, MaxHp);
+		}
+		else
+		{
+			CurrentHp = Mathf.Clamp(previousCurrentHp, 0, MaxHp);
+		}
+
+		if (MaxHp != previousMaxHp || CurrentHp != previousCurrentHp)
+		{
+			EmitSignal(SignalName.HealthChanged, CurrentHp, MaxHp);
+		}
+	}
+
 	public void ReceiveDamage(int damage)
 	{
 		if (_isDead || damage <= 0)
