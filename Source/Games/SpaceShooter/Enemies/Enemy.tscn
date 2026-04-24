@@ -32,11 +32,10 @@ HealthComponent = NodePath("../HealthComponent")
 
 [node name="HitSfx" type="AudioStreamPlayer2D" parent="." unique_id=935498102]
 stream = ExtResource("6_gemqi")
-volume_db = 3.698
-bus = &"SFX"
+volume_db = 6.0
 
 [node name="DeathSfx" type="AudioStreamPlayer2D" parent="." unique_id=380855447]
 stream = ExtResource("7_gemqi")
-bus = &"SFX"
+volume_db = 10.0
 
 [editable path="HitboxComponent"]

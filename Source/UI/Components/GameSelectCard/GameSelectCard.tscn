@@ -59,6 +59,7 @@ stretch_mode = 5
 
 [node name="HoverPlayer" type="AudioStreamPlayer" parent="." unique_id=1803191679]
 stream = ExtResource("3_bobql")
+volume_db = -15.0
 
 [node name="ClickPlayer" type="AudioStreamPlayer" parent="." unique_id=1541146010]
 stream = ExtResource("4_bkrcu")

@@ -18,10 +18,6 @@ boot_splash/image="uid://dqw8q2lq5qbgb"
 config/icon="res://icon.svg"
 boot_splash/minimum_display_time=3
 
-[audio]
-
-buses/default_bus_layout="uid://twdin77lm1ns"
-
 [autoload]
 
 GlobalGameManager="*uid://cvv1mubg264p4"

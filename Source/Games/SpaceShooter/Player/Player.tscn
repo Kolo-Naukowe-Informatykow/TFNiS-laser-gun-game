@@ -24,10 +24,8 @@ _healthComponent = NodePath("HealthComponent")
 
 [node name="ShotSFX" type="AudioStreamPlayer" parent="." unique_id=2004710858]
 stream = SubResource("AudioStreamRandomizer_rfhco")
-volume_db = -9.299
-bus = &"Shot"
+volume_db = -25.0
 
 [node name="HurtSFX" type="AudioStreamPlayer" parent="." unique_id=312052735]
 stream = ExtResource("6_f4ts5")
-volume_db = -15.716
-bus = &"Feedback"
+volume_db = -5.0
