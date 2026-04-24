@@ -61,6 +61,10 @@ namespace SpaceShooter.Enemies
 		[Export] private float _hitShakeStrength = 16.0f;
 		[Export] private int _hitShakeSteps = 12;
 		[Export] private int _scoreValue = 100;
+		private float _baseDepthSpeed;
+		private int _baseScoreValue;
+		private int _baseMaxHp;
+		private int _currentScoreValue;
 
 		[Export] private EnemyFlightPattern _flightPattern = EnemyFlightPattern.Forward;
 		private Vector2 _startPoint;
@@ -95,9 +99,13 @@ namespace SpaceShooter.Enemies
 			if (_healthComponent != null)
 			{
 				_healthComponent.HealthChanged += OnHealthChanged;
+				_baseMaxHp = Math.Max(1, _healthComponent.MaxHp);
 			}
 
 			_particlesComponent ??= GetNodeOrNull<ParticlesComponent>("ParticlesComponent");
+			_baseDepthSpeed = Mathf.Max(0.01f, _depthSpeed);
+			_baseScoreValue = Math.Max(0, _scoreValue);
+			_currentScoreValue = _baseScoreValue;
 
 			Scale = Vector2.One * Mathf.Max(0.01f, _minScale);
 		}
@@ -178,6 +186,37 @@ namespace SpaceShooter.Enemies
 			Scale = Vector2.One * Mathf.Max(0.01f, initialScale);
 		}
 
+		public void ApplyDifficulty(float speedMultiplier, float healthMultiplier, float scoreMultiplier)
+		{
+			if (_baseDepthSpeed <= 0f)
+			{
+				_baseDepthSpeed = Mathf.Max(0.01f, _depthSpeed);
+			}
+
+			if (_baseScoreValue <= 0)
+			{
+				_baseScoreValue = Math.Max(0, _scoreValue);
+			}
+
+			if (_healthComponent != null && _baseMaxHp <= 0)
+			{
+				_baseMaxHp = Math.Max(1, _healthComponent.MaxHp);
+			}
+
+			float safeSpeedMultiplier = Mathf.Clamp(speedMultiplier, 0.5f, 4.0f);
+			float safeHealthMultiplier = Mathf.Clamp(healthMultiplier, 0.5f, 5.0f);
+			float safeScoreMultiplier = Mathf.Clamp(scoreMultiplier, 0.5f, 5.0f);
+
+			_depthSpeed = Mathf.Max(0.01f, _baseDepthSpeed * safeSpeedMultiplier);
+			_currentScoreValue = Math.Max(0, Mathf.RoundToInt(_baseScoreValue * safeScoreMultiplier));
+
+			if (_healthComponent != null)
+			{
+				int scaledMaxHp = Math.Max(1, Mathf.RoundToInt(_baseMaxHp * safeHealthMultiplier));
+				_healthComponent.MaxHp = scaledMaxHp;
+			}
+		}
+
 		public void HandleDeath()
 		{
 			if (_isDying || !_isActive)
@@ -188,7 +227,7 @@ namespace SpaceShooter.Enemies
 			_isDying = true;
 			Node particleParent = GetParent() ?? GetTree()?.CurrentScene;
 			_particlesComponent?.EmitAt(GlobalPosition, particleParent);
-			EmitSignal(SignalName.Defeated, Math.Max(0, _scoreValue));
+			EmitSignal(SignalName.Defeated, Math.Max(0, _currentScoreValue));
 			RequestRecycle(0);
 		}
 

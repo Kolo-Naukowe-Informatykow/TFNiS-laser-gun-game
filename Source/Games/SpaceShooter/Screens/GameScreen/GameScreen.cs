@@ -9,6 +9,7 @@ namespace SpaceShooter.Screens
 
         [Export] private EnemySpawner _enemySpawner;
         [Export] private Player _player;
+        [Export] private DifficultyManager _difficultyManager;
         private SpaceShooterGameManager _gameManager;
         private ScoreManager _scoreManager;
         private bool _isDefeated;
@@ -16,6 +17,7 @@ namespace SpaceShooter.Screens
         public override void _EnterTree()
         {
             EnsureScoreManager();
+            EnsureDifficultyManager();
         }
 
         public override void _Ready()
@@ -29,6 +31,7 @@ namespace SpaceShooter.Screens
             }
 
             _scoreManager?.ResetRunState();
+            _difficultyManager?.Configure(_enemySpawner);
 
             if (_enemySpawner == null)
             {
@@ -123,6 +126,27 @@ namespace SpaceShooter.Screens
 
             scoreManager.Name = "ScoreManager";
             AddChild(scoreManager);
+        }
+
+        private void EnsureDifficultyManager()
+        {
+            if (_difficultyManager != null)
+            {
+                return;
+            }
+
+            _difficultyManager = GetNodeOrNull<DifficultyManager>("DifficultyManager");
+            if (_difficultyManager != null)
+            {
+                return;
+            }
+
+            _difficultyManager = new DifficultyManager
+            {
+                Name = "DifficultyManager"
+            };
+
+            AddChild(_difficultyManager);
         }
     }
 }
