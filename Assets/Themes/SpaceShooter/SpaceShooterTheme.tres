@@ -1,5 +1,7 @@
 [gd_resource type="Theme" format=3 uid="uid://c0b4jxh0af4yt"]
 
+[ext_resource type="FontFile" uid="uid://dii6visocdwq5" path="res://Assets/Fonts/Jersey10-Regular.ttf" id="1_srgey"]
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_xe0lt"]
 bg_color = Color(0.57254905, 0.42352942, 0.9098039, 0.5019608)
 corner_radius_top_left = 16
@@ -34,6 +36,7 @@ corner_radius_bottom_right = 16
 corner_radius_bottom_left = 16
 
 [resource]
+default_font = ExtResource("1_srgey")
 PanelContainer/styles/panel = SubResource("StyleBoxFlat_xe0lt")
 ProgressBar/styles/background = SubResource("StyleBoxFlat_y0oo8")
 ProgressBar/styles/fill = SubResource("StyleBoxFlat_srgey")

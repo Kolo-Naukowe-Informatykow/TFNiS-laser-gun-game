@@ -41,6 +41,7 @@ namespace SpaceShooter.Enemies
 		private Vector2 _baseSpriteLocalPosition = Vector2.Zero;
 		private bool _isDying;
 		private bool _isActive;
+		private int _lastKnownHp = -1;
 
 		[Export] private float _minScale = 0.06f;
 		[Export] private float _maxScale = 1.0f;
@@ -169,6 +170,10 @@ namespace SpaceShooter.Enemies
 			}
 
 			_healthComponent?.ResetHealth();
+			if (_healthComponent != null)
+			{
+				_lastKnownHp = _healthComponent.CurrentHp;
+			}
 
 			_depthProgress = 0f;
 			_pauseConsumed = false;
@@ -213,7 +218,7 @@ namespace SpaceShooter.Enemies
 			if (_healthComponent != null)
 			{
 				int scaledMaxHp = Math.Max(1, Mathf.RoundToInt(_baseMaxHp * safeHealthMultiplier));
-				_healthComponent.MaxHp = scaledMaxHp;
+				_healthComponent.SetMaxHp(scaledMaxHp);
 			}
 		}
 
@@ -235,6 +240,7 @@ namespace SpaceShooter.Enemies
 		{
 			_isActive = false;
 			_isDying = false;
+			_lastKnownHp = -1;
 			SetProcess(false);
 			Visible = false;
 			SetHitboxesEnabled(false);
@@ -250,6 +256,14 @@ namespace SpaceShooter.Enemies
 
 		private void OnHealthChanged(int currentHp, int maxHp)
 		{
+			bool tookDamage = _lastKnownHp >= 0 && currentHp < _lastKnownHp;
+			_lastKnownHp = currentHp;
+
+			if (!tookDamage)
+			{
+				return;
+			}
+
 			if (_sprite == null || _isDying)
 			{
 				return;

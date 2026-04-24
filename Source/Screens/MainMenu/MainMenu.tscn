@@ -44,7 +44,7 @@ size_flags_stretch_ratio = 3.0
 [node name="Label" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer2" unique_id=167341394]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 256
+theme_override_font_sizes/font_size = 320
 text = "Laser Games"
 horizontal_alignment = 1
 vertical_alignment = 1
