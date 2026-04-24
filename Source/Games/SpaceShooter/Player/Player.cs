@@ -6,19 +6,16 @@ public partial class Player : Node
     [Signal] public delegate void ShotFiredEventHandler(Vector2 screenPosition);
     [Signal] public delegate void PlayerDiedEventHandler();
 
-    [Export] public int ShotDamage = 100;
+    [Export] public int ShotDamage = 80;
     [Export] private float _shotAssistRadius = 20f;
-
     [Export] private AudioStreamPlayer _shotSfx;
     [Export] private AudioStreamPlayer _hurtSfx;
     [Export] private HealthComponent _healthComponent;
-    [Export] private float _shotCooldown = 0.18f;
+    [Export] private float _shotCooldown = 0.16f;
 
     public HealthComponent HealthComponent => _healthComponent;
 
     private double _shotCooldownRemaining;
-    private bool _queuedShot;
-    private Vector2 _queuedShotPosition;
     private SpaceShooterGameManager _gameManager;
 
     public override void _Ready()
@@ -60,12 +57,6 @@ public partial class Player : Node
         {
             _shotCooldownRemaining = Math.Max(0d, _shotCooldownRemaining - delta);
         }
-
-        if (_queuedShot && _shotCooldownRemaining <= 0d)
-        {
-            _queuedShot = false;
-            ExecuteShot(_queuedShotPosition);
-        }
     }
 
     public void ReceiveDamage(int damage)
@@ -76,24 +67,15 @@ public partial class Player : Node
         _hurtSfx?.Play();
     }
 
-    public int GetCurrentHp()
-    {
-        return _healthComponent?.CurrentHp ?? 0;
-    }
-
     public void RequestShot(Vector2 screenPosition)
     {
         if (_gameManager?.IsDefeated ?? false)
         {
-            _queuedShot = false;
             return;
         }
 
-        _queuedShotPosition = screenPosition;
-
         if (_shotCooldownRemaining > 0d)
         {
-            _queuedShot = true;
             return;
         }
 
@@ -199,9 +181,6 @@ public partial class Player : Node
 
     private void OnDefeatStateChanged(bool isDefeated)
     {
-        if (isDefeated)
-        {
-            _queuedShot = false;
-        }
+        _ = isDefeated;
     }
 }

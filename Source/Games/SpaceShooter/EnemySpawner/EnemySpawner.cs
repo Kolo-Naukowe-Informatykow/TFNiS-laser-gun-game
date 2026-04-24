@@ -6,6 +6,7 @@ using SpaceShooter.Enemies;
 
 public partial class EnemySpawner : Node
 {
+    [Signal] public delegate void EnemyDefeatedEventHandler(int scoreValue);
     [Signal] public delegate void EnemyEscapedEventHandler(int damageToPlayer);
 
     [Export] private Godot.Collections.Array<PackedScene> _enemyScenes;
@@ -18,9 +19,17 @@ public partial class EnemySpawner : Node
     private readonly RandomNumberGenerator _rng = new();
     private readonly Dictionary<PackedScene, Stack<Enemy>> _enemyPoolByScene = new();
     private readonly Dictionary<Enemy, PackedScene> _sceneByEnemy = new();
+    private readonly HashSet<Enemy> _activeEnemies = new();
     private int _enemyNameCounter;
     private Timer _spawnTimer;
     private bool _isSpawningEnabled = true;
+    private float _baseSpawnIntervalMin;
+    private float _baseSpawnIntervalMax;
+    private float _spawnRateMultiplier = 1f;
+    private float _spawnCountMultiplier = 1f;
+    private float _enemySpeedMultiplier = 1f;
+    private float _enemyHealthMultiplier = 1f;
+    private float _enemyScoreMultiplier = 1f;
 
     public override void _Ready()
     {
@@ -38,6 +47,9 @@ public partial class EnemySpawner : Node
             OneShot = true,
             Autostart = false
         };
+
+        _baseSpawnIntervalMin = Mathf.Max(0.05f, _spawnIntervalMin);
+        _baseSpawnIntervalMax = Mathf.Max(_baseSpawnIntervalMin, _spawnIntervalMax);
 
         AddChild(_spawnTimer);
         _spawnTimer.Timeout += OnSpawnTimerTimeout;
@@ -63,7 +75,12 @@ public partial class EnemySpawner : Node
             return;
         }
 
-        SpawnEnemy();
+        int spawnCount = CalculateSpawnCount();
+        for (int i = 0; i < spawnCount; i++)
+        {
+            SpawnEnemy();
+        }
+
         ScheduleNextSpawn();
     }
 
@@ -74,11 +91,38 @@ public partial class EnemySpawner : Node
             return;
         }
 
-        float minInterval = Mathf.Max(0.05f, Math.Min(_spawnIntervalMin, _spawnIntervalMax));
-        float maxInterval = Mathf.Max(minInterval, Math.Max(_spawnIntervalMin, _spawnIntervalMax));
+        float baseMinInterval = Mathf.Max(0.05f, Math.Min(_baseSpawnIntervalMin, _baseSpawnIntervalMax));
+        float baseMaxInterval = Mathf.Max(baseMinInterval, Math.Max(_baseSpawnIntervalMin, _baseSpawnIntervalMax));
+        float safeRateMultiplier = Mathf.Max(0.1f, _spawnRateMultiplier);
+        float minInterval = Mathf.Max(0.05f, baseMinInterval / safeRateMultiplier);
+        float maxInterval = Mathf.Max(minInterval, baseMaxInterval / safeRateMultiplier);
 
         _spawnTimer.WaitTime = _rng.RandfRange(minInterval, maxInterval);
         _spawnTimer.Start();
+    }
+
+    public void SetDifficultyMultipliers(
+        float spawnRateMultiplier,
+        float spawnCountMultiplier,
+        float enemySpeedMultiplier,
+        float enemyHealthMultiplier,
+        float enemyScoreMultiplier)
+    {
+        _spawnRateMultiplier = Mathf.Clamp(spawnRateMultiplier, 0.4f, 4.0f);
+        _spawnCountMultiplier = Mathf.Clamp(spawnCountMultiplier, 1.0f, 4.0f);
+        _enemySpeedMultiplier = Mathf.Clamp(enemySpeedMultiplier, 0.5f, 4.0f);
+        _enemyHealthMultiplier = Mathf.Clamp(enemyHealthMultiplier, 0.5f, 5.0f);
+        _enemyScoreMultiplier = Mathf.Clamp(enemyScoreMultiplier, 0.5f, 5.0f);
+
+        foreach (Enemy activeEnemy in _activeEnemies)
+        {
+            if (!GodotObject.IsInstanceValid(activeEnemy))
+            {
+                continue;
+            }
+
+            activeEnemy.ApplyDifficulty(_enemySpeedMultiplier, _enemyHealthMultiplier, _enemyScoreMultiplier);
+        }
     }
 
     public void SetSpawningEnabled(bool isEnabled)
@@ -166,6 +210,7 @@ public partial class EnemySpawner : Node
 
             enemy = instantiatedEnemy;
             enemy.Name = BuildEnemyNodeName(enemyScene);
+            enemy.Defeated += OnEnemyDefeated;
             enemy.RecycleRequested += OnEnemyRecycleRequested;
             _sceneByEnemy[enemy] = enemyScene;
         }
@@ -181,6 +226,9 @@ public partial class EnemySpawner : Node
                 enemy.Reparent(targetParent);
             }
         }
+
+        enemy.ApplyDifficulty(_enemySpeedMultiplier, _enemyHealthMultiplier, _enemyScoreMultiplier);
+        _activeEnemies.Add(enemy);
 
         return enemy;
     }
@@ -210,6 +258,7 @@ public partial class EnemySpawner : Node
 
         if (!_sceneByEnemy.TryGetValue(enemy, out PackedScene enemyScene) || enemyScene == null)
         {
+            _activeEnemies.Remove(enemy);
             enemy.QueueFree();
             return;
         }
@@ -220,6 +269,7 @@ public partial class EnemySpawner : Node
             _enemyPoolByScene[enemyScene] = scenePool;
         }
 
+        _activeEnemies.Remove(enemy);
         enemy.DeactivateForPool();
         scenePool.Push(enemy);
     }
@@ -232,6 +282,11 @@ public partial class EnemySpawner : Node
         }
 
         ReturnEnemyToPool(enemy);
+    }
+
+    private void OnEnemyDefeated(int scoreValue)
+    {
+        EmitSignal(SignalName.EnemyDefeated, scoreValue);
     }
 
     private void PrewarmPools()
@@ -291,5 +346,19 @@ public partial class EnemySpawner : Node
             default:
                 return (EnemyTargetLane)_rng.RandiRange(0, 2);
         }
+    }
+
+    private int CalculateSpawnCount()
+    {
+        float safeMultiplier = Mathf.Max(1f, _spawnCountMultiplier);
+        int guaranteedCount = Math.Max(1, Mathf.FloorToInt(safeMultiplier));
+        float extraSpawnChance = Mathf.Clamp(safeMultiplier - guaranteedCount, 0f, 1f);
+
+        if (_rng.Randf() < extraSpawnChance)
+        {
+            guaranteedCount++;
+        }
+
+        return guaranteedCount;
     }
 }

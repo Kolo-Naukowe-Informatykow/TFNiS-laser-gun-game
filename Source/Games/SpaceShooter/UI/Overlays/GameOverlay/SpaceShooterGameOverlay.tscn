@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://c7lce0ctp2dpu" path="res://Source/Games/SpaceShooter/UI/Overlays/GameOverlay/SpaceShooterGameOverlay.cs" id="1_vd0ah"]
 [ext_resource type="PackedScene" uid="uid://b4hhixponsx6o" path="res://Source/UI/Components/PlayerHealthBar/PlayerHealthBar.tscn" id="2_epdm0"]
 [ext_resource type="Theme" uid="uid://c0b4jxh0af4yt" path="res://Assets/Themes/SpaceShooter/SpaceShooterTheme.tres" id="2_g3187"]
-[ext_resource type="PackedScene" uid="uid://22004fnnp6l4" path="res://Source/UI/Components/TimerLabel/TimerLabel.tscn" id="3_gicvg"]
+[ext_resource type="PackedScene" uid="uid://dsmldxfl4cvfw" path="res://Source/UI/Components/ScoreLabel/ScoreLabel.tscn" id="3_gicvg"]
 
 [node name="SpaceShooterGameOverlay" type="Control" unique_id=878110085]
 z_index = 9
@@ -56,7 +56,7 @@ size_flags_horizontal = 4
 mouse_filter = 2
 theme = ExtResource("2_g3187")
 
-[node name="TimerLabel" parent="MarginContainer/VBoxContainer/HBoxContainer/MarginContainer2/PanelContainer" unique_id=2075230699 instance=ExtResource("3_gicvg")]
+[node name="ScoreLabel" parent="MarginContainer/VBoxContainer/HBoxContainer/MarginContainer2/PanelContainer" unique_id=292262906 instance=ExtResource("3_gicvg")]
 layout_mode = 2
 
 [node name="MarginContainer3" type="MarginContainer" parent="MarginContainer/VBoxContainer/HBoxContainer" unique_id=604904485]

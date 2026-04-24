@@ -1,0 +1,41 @@
+[gd_scene format=3 uid="uid://bkpi1ev2qqxfx"]
+
+[ext_resource type="Script" uid="uid://jt3n02sl61qs" path="res://Source/UI/Components/HighScoreTable/HighScoreTableEntry/HighScoreTableEntry.cs" id="1_eppue"]
+
+[node name="HighScoreTableEntry" type="HBoxContainer" unique_id=1768359462 node_paths=PackedStringArray("_numberLabel", "_nameLabel", "_scoreLabel", "_dateLabel")]
+size_flags_vertical = 3
+script = ExtResource("1_eppue")
+_numberLabel = NodePath("PlaceLabel")
+_nameLabel = NodePath("NameLabel")
+_scoreLabel = NodePath("ScoreLabel")
+_dateLabel = NodePath("DateLabel")
+
+[node name="PlaceLabel" type="Label" parent="." unique_id=2132804295]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 32
+text = "1"
+
+[node name="NameLabel" type="Label" parent="." unique_id=195190199]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 3.0
+theme_override_font_sizes/font_size = 32
+text = "player"
+
+[node name="ScoreLabel" type="Label" parent="." unique_id=1411864226]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 3.0
+theme_override_font_sizes/font_size = 32
+text = "99999"
+vertical_alignment = 1
+
+[node name="DateLabel" type="Label" parent="." unique_id=139965446]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 2.0
+theme_override_font_sizes/font_size = 32
+text = "23/04 10:21"
+horizontal_alignment = 2
+vertical_alignment = 1

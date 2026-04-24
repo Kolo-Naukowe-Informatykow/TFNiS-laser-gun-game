@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://7cjm8tig0i18"]
+
+[ext_resource type="Script" uid="uid://be03i56iby2x4" path="res://Source/Games/SpaceShooter/Managers/DifficultyManager/DifficultyManager.cs" id="1_22j5r"]
+
+[node name="DifficultyManager" type="Node" unique_id=1994103712]
+script = ExtResource("1_22j5r")

@@ -27,6 +27,7 @@ namespace SpaceShooter.Enemies
 
     public partial class Enemy : Node2D
     {
+        [Signal] public delegate void DefeatedEventHandler(int scoreValue);
         [Signal] public delegate void EscapedEventHandler(int damageToPlayer);
         [Signal] public delegate void RecycleRequestedEventHandler(Enemy enemy, int damageToPlayer);
 
@@ -42,6 +43,8 @@ namespace SpaceShooter.Enemies
         private Vector2 _baseSpriteLocalPosition = Vector2.Zero;
         private bool _isDying;
         private bool _isActive;
+        private bool _suppressDamageFeedback;
+        private int _lastKnownHp = -1;
 
         [Export] private float _minScale = 0.06f;
         [Export] private float _maxScale = 1.0f;
@@ -61,6 +64,11 @@ namespace SpaceShooter.Enemies
         [Export] private float _hitShakeDuration = 0.16f;
         [Export] private float _hitShakeStrength = 16.0f;
         [Export] private int _hitShakeSteps = 12;
+        [Export] private int _scoreValue = 100;
+        private float _baseDepthSpeed;
+        private int _baseScoreValue;
+        private int _baseMaxHp;
+        private int _currentScoreValue;
 
         [Export] private EnemyFlightPattern _flightPattern = EnemyFlightPattern.Forward;
         private Vector2 _startPoint;
@@ -95,9 +103,13 @@ namespace SpaceShooter.Enemies
             if (_healthComponent != null)
             {
                 _healthComponent.HealthChanged += OnHealthChanged;
+                _baseMaxHp = Math.Max(1, _healthComponent.MaxHp);
             }
 
             _particlesComponent ??= GetNodeOrNull<ParticlesComponent>("ParticlesComponent");
+            _baseDepthSpeed = Mathf.Max(0.01f, _depthSpeed);
+            _baseScoreValue = Math.Max(0, _scoreValue);
+            _currentScoreValue = _baseScoreValue;
 
             Scale = Vector2.One * Mathf.Max(0.01f, _minScale);
         }
@@ -161,6 +173,10 @@ namespace SpaceShooter.Enemies
             }
 
             _healthComponent?.ResetHealth();
+            if (_healthComponent != null)
+            {
+                _lastKnownHp = _healthComponent.CurrentHp;
+            }
 
             _depthProgress = 0f;
             _pauseConsumed = false;
@@ -178,6 +194,40 @@ namespace SpaceShooter.Enemies
             Scale = Vector2.One * Mathf.Max(0.01f, initialScale);
         }
 
+        public void ApplyDifficulty(float speedMultiplier, float healthMultiplier, float scoreMultiplier)
+        {
+            if (_baseDepthSpeed <= 0f)
+            {
+                _baseDepthSpeed = Mathf.Max(0.01f, _depthSpeed);
+            }
+
+            if (_baseScoreValue <= 0)
+            {
+                _baseScoreValue = Math.Max(0, _scoreValue);
+            }
+
+            if (_healthComponent != null && _baseMaxHp <= 0)
+            {
+                _baseMaxHp = Math.Max(1, _healthComponent.MaxHp);
+            }
+
+            float safeSpeedMultiplier = Mathf.Clamp(speedMultiplier, 0.5f, 4.0f);
+            float safeHealthMultiplier = Mathf.Clamp(healthMultiplier, 0.5f, 5.0f);
+            float safeScoreMultiplier = Mathf.Clamp(scoreMultiplier, 0.5f, 5.0f);
+
+            _depthSpeed = Mathf.Max(0.01f, _baseDepthSpeed * safeSpeedMultiplier);
+            _currentScoreValue = Math.Max(0, Mathf.RoundToInt(_baseScoreValue * safeScoreMultiplier));
+
+            if (_healthComponent != null)
+            {
+                int scaledMaxHp = Math.Max(1, Mathf.RoundToInt(_baseMaxHp * safeHealthMultiplier));
+                _suppressDamageFeedback = true;
+                _healthComponent.SetMaxHp(scaledMaxHp);
+                _suppressDamageFeedback = false;
+                _lastKnownHp = _healthComponent.CurrentHp;
+            }
+        }
+
         public void HandleDeath()
         {
             if (_isDying || !_isActive)
@@ -186,8 +236,10 @@ namespace SpaceShooter.Enemies
             }
 
             _isDying = true;
-            _particlesComponent?.EmitAt(GlobalPosition, GetParent());
+            Node particleParent = GetParent() ?? GetTree()?.CurrentScene;
+            _particlesComponent?.EmitAt(GlobalPosition, particleParent);
             PlayDeathSfx();
+            EmitSignal(SignalName.Defeated, Math.Max(0, _currentScoreValue));
             RequestRecycle(0);
         }
 
@@ -195,6 +247,8 @@ namespace SpaceShooter.Enemies
         {
             _isActive = false;
             _isDying = false;
+            _lastKnownHp = -1;
+            _suppressDamageFeedback = false;
             SetProcess(false);
             Visible = false;
             SetHitboxesEnabled(false);
@@ -210,13 +264,25 @@ namespace SpaceShooter.Enemies
 
         private void OnHealthChanged(int currentHp, int maxHp)
         {
+            if (_suppressDamageFeedback)
+            {
+                _lastKnownHp = currentHp;
+                return;
+            }
+
+            bool tookDamage = _lastKnownHp >= 0 && currentHp < _lastKnownHp;
+            _lastKnownHp = currentHp;
+
+            if (!tookDamage)
+            {
+                return;
+            }
+
             if (_sprite == null || _isDying)
             {
                 return;
             }
 
-            // TODO: In order to NOT play the sound and shake the sprite, we check if HP is less than max.
-            // Ideally, damage taken should call a separate signal.
             if (currentHp < maxHp)
             {
                 _damageFlashTween?.Kill();
@@ -232,7 +298,6 @@ namespace SpaceShooter.Enemies
             }
 
         }
-
 
         private void PlayHitShake()
         {
@@ -262,10 +327,8 @@ namespace SpaceShooter.Enemies
             _hitShakeTween.TweenProperty(_sprite, "position", _baseSpriteLocalPosition, stepDuration);
         }
 
-        // Plays a 2D-positional hit sound effect
         private void PlayHitSfx() => _hitSfx?.Play();
 
-        // Plays a 2D-positional death sound effect
         private void PlayDeathSfx() => _deathSfx?.Play();
 
         private float EvaluateScaleProgress(float progress)
@@ -428,13 +491,25 @@ namespace SpaceShooter.Enemies
 
         private void SetHitboxesEnabled(bool enabled)
         {
-            foreach (Node child in GetChildren())
+            SetHitboxesEnabledRecursive(this, enabled);
+        }
+
+        private void SetHitboxesEnabledRecursive(Node node, bool enabled)
+        {
+            foreach (Node child in node.GetChildren())
             {
                 if (child is Area2D area)
                 {
                     area.Monitoring = enabled;
                     area.Monitorable = enabled;
                 }
+
+                if (child is CollisionShape2D collisionShape)
+                {
+                    collisionShape.Disabled = !enabled;
+                }
+
+                SetHitboxesEnabledRecursive(child, enabled);
             }
         }
     }
